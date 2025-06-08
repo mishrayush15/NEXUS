@@ -1,0 +1,539 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Theme Variables */
+:root {
+  --bg-primary: #212529;
+  --bg-secondary: #343A40;
+  --text-primary: #F8F9FA;
+  --text-secondary: #ADB5BD;
+  --primary-color: #0077FF;
+  --primary-light: #66ADFF;
+  --primary-dark: #005FCC;
+  --accent-color: #8700FF;
+  --accent-light: #B766FF;
+  --accent-dark: #6C00CC;
+  --surface-color: rgba(73, 80, 87, 0.5);
+  --border-color: rgba(206, 212, 218, 0.2);
+  --base-font-size: 16px;
+  
+  /* Light theme variables */
+  --light-bg: #f4f4f5;
+  --light-surface: #ffffff;
+  --light-text: #18181b;
+  --light-border: #e4e4e7;
+  
+  /* Dark theme variables */
+  --dark-bg: #18181b;
+  --dark-surface: #27272a;
+  --dark-text: #f4f4f5;
+  --dark-border: #3f3f46;
+  
+  /* Custom theme variables with defaults */
+  --bg-color: var(--dark-bg);
+  --surface-color: var(--dark-surface);
+  --primary-color: #f59e0b;
+  --secondary-color: #8b5cf6;
+  --text-color: var(--dark-text);
+  --text-muted: #a1a1aa;
+  --border-color: var(--dark-border);
+  --gradient-primary: linear-gradient(135deg, #f59e0b 0%, #8b5cf6 100%);
+  --gradient-surface: linear-gradient(180deg, rgba(39, 39, 42, 0.8) 0%, rgba(24, 24, 27, 0.9) 100%);
+}
+
+:root.light {
+  --bg-primary: #F8F9FA;
+  --bg-secondary: #F1F3F5;
+  --text-primary: #212529;
+  --text-secondary: #495057;
+  --primary-color: #0077FF;
+  --primary-light: #CCE4FF;
+  --primary-dark: #005FCC;
+  --accent-color: #8700FF;
+  --accent-light: #E7CCFF;
+  --accent-dark: #6C00CC;
+  --surface-color: rgba(233, 236, 239, 0.8);
+  --border-color: rgba(173, 181, 189, 0.2);
+  --light-bg: #f4f4f5;
+  --light-surface: #ffffff;
+  --light-text: #18181b;
+  --light-border: #e4e4e7;
+  color-scheme: light;
+}
+
+.dark {
+  --bg-color: var(--dark-bg);
+  --surface-color: var(--dark-surface);
+  --text-color: var(--dark-text);
+  --border-color: var(--dark-border);
+  color-scheme: dark;
+}
+
+/* Base Styles */
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply antialiased font-sans text-base;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    font-size: var(--base-font-size);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-poppins font-medium tracking-tight;
+  }
+  
+  h1 {
+    @apply text-4xl md:text-5xl;
+    font-size: calc(var(--base-font-size) * 2);
+  }
+  
+  h2 {
+    @apply text-3xl md:text-4xl;
+    font-size: calc(var(--base-font-size) * 1.5);
+  }
+  
+  h3 {
+    @apply text-2xl md:text-3xl;
+    font-size: calc(var(--base-font-size) * 1.25);
+  }
+  
+  p {
+    @apply leading-relaxed;
+  }
+  
+  ::selection {
+    @apply bg-nexus-purple-400/30 text-white;
+  }
+}
+
+/* Custom Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes progress {
+  0% {
+    width: 0;
+    opacity: 1;
+  }
+  50% {
+    width: 60%;
+    opacity: 0.8;
+  }
+  100% {
+    width: 100%;
+    opacity: 0;
+  }
+}
+
+/* Add keyframe animations for Dark Room */
+@keyframes twinkle {
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { opacity: 0.3; }
+}
+
+@keyframes shimmer-gradient {
+  0% { background-position: 0% 0%; }
+  100% { background-position: -200% 0%; }
+}
+
+.animate-shimmer-gradient {
+  animation: shimmer-gradient 3s linear infinite;
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease forwards;
+  }
+  
+  .animate-shimmer {
+    animation: shimmer 2s linear infinite;
+    background-size: 200% 100%;
+  }
+  
+  .animate-slide-in {
+    animation: slideIn 0.3s ease forwards;
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-nexus-blue-500 to-nexus-purple-500;
+  }
+  
+  .bg-gradient-blue-purple {
+    @apply bg-gradient-to-r from-nexus-blue-500 to-nexus-purple-500;
+  }
+  
+  .bg-gradient-soft-blue {
+    @apply bg-gradient-soft from-nexus-blue-400 to-nexus-blue-600;
+  }
+  
+  .bg-gradient-soft-purple {
+    @apply bg-gradient-soft from-nexus-purple-400 to-nexus-purple-600;
+  }
+  
+  .shadow-soft {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  }
+  
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-nexus-blue-500/50 focus:ring-offset-2 focus:ring-offset-nexus-neutral-900;
+  }
+}
+
+/* Scrollbar Styles */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Custom scrollbar for non-hidden scrollbars */
+::-webkit-scrollbar {
+  @apply w-2;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  @apply w-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-nexus-neutral-800;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-nexus-neutral-800/50;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-nexus-blue-700 rounded-full hover:bg-nexus-blue-600 transition-colors;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-nexus-blue-600 rounded-full hover:bg-nexus-blue-500 transition-colors;
+}
+
+/* Hide scrollbar until hover */
+.hide-scrollbar-until-hover {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar-until-hover::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+.hide-scrollbar-until-hover:hover {
+  scrollbar-width: thin;
+  -ms-overflow-style: auto;
+}
+
+.hide-scrollbar-until-hover:hover::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  display: block;
+}
+
+.hide-scrollbar-until-hover:hover::-webkit-scrollbar-thumb {
+  @apply bg-nexus-blue-500 rounded-full;
+}
+
+.hide-scrollbar-until-hover:hover::-webkit-scrollbar-track {
+  @apply bg-nexus-neutral-800/30;
+}
+
+/* Glass Effect */
+.glass-effect {
+  @apply backdrop-blur-lg;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  @apply rounded-xl shadow-soft;
+}
+
+/* Card Styles */
+.card {
+  @apply bg-nexus-neutral-800/50 backdrop-blur-sm border border-nexus-neutral-700/50 rounded-xl overflow-hidden shadow-soft;
+}
+
+/* Button Styles */
+.btn {
+  @apply px-4 py-2 rounded-lg font-medium transition-all duration-200
+         focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95;
+}
+
+.btn-primary {
+  @apply bg-nexus-blue-500 hover:bg-nexus-blue-600 text-white
+         focus:ring-nexus-blue-500/50 focus:ring-offset-nexus-neutral-900;
+}
+
+.btn-secondary {
+  @apply bg-nexus-neutral-700 hover:bg-nexus-neutral-600 text-white
+         focus:ring-nexus-neutral-500/50 focus:ring-offset-nexus-neutral-900;
+}
+
+.btn-accent {
+  @apply bg-nexus-purple-500 hover:bg-nexus-purple-600 text-white
+         focus:ring-nexus-purple-500/50 focus:ring-offset-nexus-neutral-900;
+}
+
+.btn-outline {
+  @apply bg-transparent border border-nexus-neutral-600 text-nexus-neutral-200
+         hover:bg-nexus-neutral-800 focus:ring-nexus-neutral-500/30;
+}
+
+/* Message Bubbles */
+.message-bubble {
+  @apply relative rounded-2xl px-6 py-4 transition-all duration-200 backdrop-blur-sm;
+  width: fit-content;
+}
+
+.message-bubble.user {
+  background: var(--primary-color);
+  color: var(--bg-primary);
+}
+
+.message-bubble.ai {
+  background: var(--surface-color);
+  color: var(--text-primary);
+}
+
+/* Input Styles */
+.chat-input {
+  @apply w-full placeholder-nexus-neutral-500 
+         rounded-lg py-4 px-4 pr-24 resize-none transition-all duration-200
+         focus:outline-none focus:ring-2 focus:ring-nexus-blue-500/50;
+  background: var(--surface-color);
+  color: var(--text-primary);
+}
+
+/* Icon Button Styles */
+.icon-button {
+  @apply p-3 rounded-lg transition-all duration-200
+         hover:bg-nexus-blue-500/20 active:scale-95
+         focus:outline-none focus:ring-2 focus:ring-nexus-blue-500/30;
+}
+
+/* Font size classes */
+.font-size-small {
+  --base-font-size: 14px;
+}
+
+.font-size-medium {
+  --base-font-size: 16px;
+}
+
+.font-size-large {
+  --base-font-size: 18px;
+}
+
+.font-size-x-large {
+  --base-font-size: 20px;
+}
+
+/* Apply font sizes to specific elements */
+button, input, select, textarea {
+  font-size: var(--base-font-size);
+}
+
+.text-sm {
+  font-size: calc(var(--base-font-size) * 0.875);
+}
+
+.text-xs {
+  font-size: calc(var(--base-font-size) * 0.75);
+}
+
+.text-lg {
+  font-size: calc(var(--base-font-size) * 1.125);
+}
+
+.text-xl {
+  font-size: calc(var(--base-font-size) * 1.25);
+}
+
+.text-2xl {
+  font-size: calc(var(--base-font-size) * 1.5);
+}
+
+/* Theme application */
+.light {
+  --bg-color: var(--light-bg);
+  --surface-color: var(--light-surface);
+  --text-color: var(--light-text);
+  --border-color: var(--light-border);
+  color-scheme: light;
+}
+
+.dark {
+  --bg-color: var(--dark-bg);
+  --surface-color: var(--dark-surface);
+  --text-color: var(--dark-text);
+  --border-color: var(--dark-border);
+  color-scheme: dark;
+}
+
+/* Theme application based on custom variables */
+.themed-bg {
+  background-color: var(--bg-color);
+}
+
+.themed-surface {
+  background-color: var(--surface-color);
+}
+
+.themed-text {
+  color: var(--text-color);
+}
+
+.themed-border {
+  border-color: var(--border-color);
+}
+
+.themed-primary {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+}
+
+.themed-gradient-primary {
+  background: var(--gradient-primary);
+}
+
+.themed-button {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.themed-button:hover {
+  background-color: var(--secondary-color);
+}
+
+/* Add these new animations: */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spin-reverse {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+/* Add animations for Dark Room terminal effects */
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes glitch {
+  0% {
+    transform: translate(0)
+  }
+  20% {
+    transform: translate(-2px, 2px)
+  }
+  40% {
+    transform: translate(-2px, -2px)
+  }
+  60% {
+    transform: translate(2px, 2px)
+  }
+  80% {
+    transform: translate(2px, -2px)
+  }
+  100% {
+    transform: translate(0)
+  }
+}
+
+.typing-effect {
+  overflow: hidden;
+  border-right: 2px solid #22c55e;
+  white-space: nowrap;
+  animation: 
+    typing 2s steps(40, end),
+    blink 1s step-end infinite;
+  animation-fill-mode: forwards;
+}
+
+.glitchy-text {
+  position: relative;
+  animation: glitch 1s infinite;
+}
+
+.glitch-effect {
+  width: 200%;
+  left: -50%;
+  animation: glitch 2s ease-in-out infinite alternate;
+}
+
+.animate-blink {
+  animation: blink 1s infinite;
+}
