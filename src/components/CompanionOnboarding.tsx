@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   User, Heart, Brain, Music, Book, Code, 
   Coffee, Gamepad, Camera, Palette, 
-  ArrowRight, ArrowLeft, Sparkles
+  ArrowRight, ArrowLeft, Sparkles, MessageSquare
 } from 'lucide-react';
 
 interface OnboardingStep {
