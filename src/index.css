@@ -17,19 +17,19 @@
   --surface-color: rgba(73, 80, 87, 0.5);
   --border-color: rgba(206, 212, 218, 0.2);
   --base-font-size: 16px;
-  
+
   /* Light theme variables */
   --light-bg: #f4f4f5;
   --light-surface: #ffffff;
   --light-text: #18181b;
   --light-border: #e4e4e7;
-  
+
   /* Dark theme variables */
   --dark-bg: #18181b;
   --dark-surface: #27272a;
   --dark-text: #f4f4f5;
   --dark-border: #3f3f46;
-  
+
   /* Custom theme variables with defaults */
   --bg-color: var(--dark-bg);
   --surface-color: var(--dark-surface);
@@ -84,30 +84,35 @@
     letter-spacing: -0.01em;
     font-size: var(--base-font-size);
   }
-  
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-poppins font-medium tracking-tight;
   }
-  
+
   h1 {
     @apply text-4xl md:text-5xl;
     font-size: calc(var(--base-font-size) * 2);
   }
-  
+
   h2 {
     @apply text-3xl md:text-4xl;
     font-size: calc(var(--base-font-size) * 1.5);
   }
-  
+
   h3 {
     @apply text-2xl md:text-3xl;
     font-size: calc(var(--base-font-size) * 1.25);
   }
-  
+
   p {
     @apply leading-relaxed;
   }
-  
+
   ::selection {
     @apply bg-nexus-purple-400/30 text-white;
   }
@@ -119,6 +124,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -130,6 +136,7 @@
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -137,9 +144,12 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -149,6 +159,7 @@
   from {
     transform: translateX(-100%);
   }
+
   to {
     transform: translateX(100%);
   }
@@ -158,6 +169,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -168,10 +180,12 @@
     width: 0;
     opacity: 1;
   }
+
   50% {
     width: 60%;
     opacity: 0.8;
   }
+
   100% {
     width: 100%;
     opacity: 0;
@@ -180,14 +194,27 @@
 
 /* Add keyframe animations for Dark Room */
 @keyframes twinkle {
-  0% { opacity: 0.3; }
-  50% { opacity: 1; }
-  100% { opacity: 0.3; }
+  0% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.3;
+  }
 }
 
 @keyframes shimmer-gradient {
-  0% { background-position: 0% 0%; }
-  100% { background-position: -200% 0%; }
+  0% {
+    background-position: 0% 0%;
+  }
+
+  100% {
+    background-position: -200% 0%;
+  }
 }
 
 .animate-shimmer-gradient {
@@ -199,40 +226,40 @@
   .animate-fade-in {
     animation: fadeIn 0.3s ease forwards;
   }
-  
+
   .animate-shimmer {
     animation: shimmer 2s linear infinite;
     background-size: 200% 100%;
   }
-  
+
   .animate-slide-in {
     animation: slideIn 0.3s ease forwards;
   }
-  
+
   .animate-pulse-slow {
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
-  
+
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-nexus-blue-500 to-nexus-purple-500;
   }
-  
+
   .bg-gradient-blue-purple {
     @apply bg-gradient-to-r from-nexus-blue-500 to-nexus-purple-500;
   }
-  
+
   .bg-gradient-soft-blue {
     @apply bg-gradient-soft from-nexus-blue-400 to-nexus-blue-600;
   }
-  
+
   .bg-gradient-soft-purple {
     @apply bg-gradient-soft from-nexus-purple-400 to-nexus-purple-600;
   }
-  
+
   .shadow-soft {
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
   }
-  
+
   .focus-ring {
     @apply focus:outline-none focus:ring-2 focus:ring-nexus-blue-500/50 focus:ring-offset-2 focus:ring-offset-nexus-neutral-900;
   }
@@ -266,11 +293,11 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-nexus-blue-700 rounded-full hover:bg-nexus-blue-600 transition-colors;
+  @apply bg-gold rounded-full hover:bg-gold/90 transition-colors;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  @apply bg-nexus-blue-600 rounded-full hover:bg-nexus-blue-500 transition-colors;
+  @apply bg-gold rounded-full hover:bg-gold/90 transition-colors;
 }
 
 /* Hide scrollbar until hover */
@@ -319,28 +346,23 @@
 
 /* Button Styles */
 .btn {
-  @apply px-4 py-2 rounded-lg font-medium transition-all duration-200
-         focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95;
+  @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95;
 }
 
 .btn-primary {
-  @apply bg-nexus-blue-500 hover:bg-nexus-blue-600 text-white
-         focus:ring-nexus-blue-500/50 focus:ring-offset-nexus-neutral-900;
+  @apply bg-nexus-blue-500 hover:bg-nexus-blue-600 text-white focus:ring-nexus-blue-500/50 focus:ring-offset-nexus-neutral-900;
 }
 
 .btn-secondary {
-  @apply bg-nexus-neutral-700 hover:bg-nexus-neutral-600 text-white
-         focus:ring-nexus-neutral-500/50 focus:ring-offset-nexus-neutral-900;
+  @apply bg-nexus-neutral-700 hover:bg-nexus-neutral-600 text-white focus:ring-nexus-neutral-500/50 focus:ring-offset-nexus-neutral-900;
 }
 
 .btn-accent {
-  @apply bg-nexus-purple-500 hover:bg-nexus-purple-600 text-white
-         focus:ring-nexus-purple-500/50 focus:ring-offset-nexus-neutral-900;
+  @apply bg-nexus-purple-500 hover:bg-nexus-purple-600 text-white focus:ring-nexus-purple-500/50 focus:ring-offset-nexus-neutral-900;
 }
 
 .btn-outline {
-  @apply bg-transparent border border-nexus-neutral-600 text-nexus-neutral-200
-         hover:bg-nexus-neutral-800 focus:ring-nexus-neutral-500/30;
+  @apply bg-transparent border border-nexus-neutral-600 text-nexus-neutral-200 hover:bg-nexus-neutral-800 focus:ring-nexus-neutral-500/30;
 }
 
 /* Message Bubbles */
@@ -361,18 +383,14 @@
 
 /* Input Styles */
 .chat-input {
-  @apply w-full placeholder-nexus-neutral-500 
-         rounded-lg py-4 px-4 pr-24 resize-none transition-all duration-200
-         focus:outline-none focus:ring-2 focus:ring-nexus-blue-500/50;
+  @apply w-full placeholder-nexus-neutral-500 rounded-lg py-4 px-4 pr-24 resize-none transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-nexus-blue-500/50;
   background: var(--surface-color);
   color: var(--text-primary);
 }
 
 /* Icon Button Styles */
 .icon-button {
-  @apply p-3 rounded-lg transition-all duration-200
-         hover:bg-nexus-blue-500/20 active:scale-95
-         focus:outline-none focus:ring-2 focus:ring-nexus-blue-500/30;
+  @apply p-3 rounded-lg transition-all duration-200 hover:bg-nexus-blue-500/20 active:scale-95 focus:outline-none focus:ring-2 focus:ring-nexus-blue-500/30;
 }
 
 /* Font size classes */
@@ -393,7 +411,10 @@
 }
 
 /* Apply font sizes to specific elements */
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   font-size: var(--base-font-size);
 }
 
@@ -472,42 +493,69 @@ button, input, select, textarea {
 
 /* Add these new animations: */
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes spin-reverse {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(-360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(-360deg);
+  }
 }
 
 /* Add animations for Dark Room terminal effects */
 @keyframes typing {
-  from { width: 0 }
-  to { width: 100% }
+  from {
+    width: 0
+  }
+
+  to {
+    width: 100%
+  }
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
 }
 
 @keyframes glitch {
   0% {
     transform: translate(0)
   }
+
   20% {
     transform: translate(-2px, 2px)
   }
+
   40% {
     transform: translate(-2px, -2px)
   }
+
   60% {
     transform: translate(2px, 2px)
   }
+
   80% {
     transform: translate(2px, -2px)
   }
+
   100% {
     transform: translate(0)
   }
@@ -517,7 +565,7 @@ button, input, select, textarea {
   overflow: hidden;
   border-right: 2px solid #22c55e;
   white-space: nowrap;
-  animation: 
+  animation:
     typing 2s steps(40, end),
     blink 1s step-end infinite;
   animation-fill-mode: forwards;
