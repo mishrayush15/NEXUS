@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Bot, Search, ArrowLeft, MessageSquare, Heart, Share2, Home, Star, Settings, Tags, Plus, X, Crown, ChevronDown, ChevronUp, Filter, Minus, Users, Smile, Zap, Radio, Award, ThumbsUp, Trophy, BookOpen } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CreateCharacterModal } from '../components/CreateCharacterModal';
@@ -112,9 +112,9 @@ const announcements: Announcement[] = [
 
 // Add genre categories
 const genreCategories = [
-  { 
-    id: 'waifu', 
-    name: 'Waifu', 
+  {
+    id: 'waifu',
+    name: 'Waifu',
     description: 'Female anime characters you can chat with',
     slugs: [
       'hinata', 'mikasa', 'asuna', 'zero-two', 'marin-kitagawa', 'misato', 'rem',
@@ -129,9 +129,9 @@ const genreCategories = [
     icon: <Heart className="w-5 h-5 text-pink-400" />,
     tagline: 'Anime Female Characters'
   },
-  { 
-    id: 'hubby', 
-    name: 'Hubby', 
+  {
+    id: 'hubby',
+    name: 'Hubby',
     description: 'Hot male anime characters',
     slugs: [
       'naruto', 'sasuke', 'levi', 'gojo', 'eren', 'kakashi', 'goku', 'luffy',
@@ -145,9 +145,9 @@ const genreCategories = [
     icon: <Zap className="w-5 h-5 text-blue-400" />,
     tagline: 'Hot Anime Males'
   },
-  { 
-    id: 'dark-romance', 
-    name: 'Dark Romance', 
+  {
+    id: 'dark-romance',
+    name: 'Dark Romance',
     description: 'Intense and passionate romantic characters with darker themes',
     slugs: [
       'edward-cullen', 'harry-styles', 'mafia-boss', 'billionaire-ceo', 'bad-boy',
@@ -159,12 +159,12 @@ const genreCategories = [
     icon: <Smile className="w-5 h-5 text-red-400" />,
     tagline: 'Intense Romantic Characters'
   },
-  { 
-    id: 'helpers', 
-    name: 'Helpers', 
+  {
+    id: 'helpers',
+    name: 'Helpers',
     description: 'Productivity AI characters to assist you',
     slugs: [
-      'professor', 'life-coach', 'therapist', 'fitness-trainer', 'study-buddy', 
+      'professor', 'life-coach', 'therapist', 'fitness-trainer', 'study-buddy',
       'career-advisor', 'math-tutor', 'writing-assistant', 'language-teacher',
       'chess-master', 'meditation-guide', 'nutrition-expert', 'financial-advisor',
       'coding-mentor', 'research-assistant', 'productivity-expert', 'science-teacher',
@@ -181,6 +181,7 @@ const genreCategories = [
   }
 ];
 
+
 function AiChat() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -193,26 +194,46 @@ function AiChat() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showPricingModal, setShowPricingModal] = useState(false);
   const [showFullLeaderboard, setShowFullLeaderboard] = useState(false);
-  const [filtersExpanded, setFiltersExpanded] = useState(true);
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
   const [tagSearch, setTagSearch] = useState('');
   const [showPersonalityModal, setShowPersonalityModal] = useState(false);
-  const [chatHistory, setChatHistory] = useState<{user: string, ai: string}[]>([]);
+  const [chatHistory, setChatHistory] = useState<{ user: string, ai: string }[]>([]);
   const [newCharacter, setNewCharacter] = useState<string | null>(null);
   const [currentAnnouncementIndex, setCurrentAnnouncementIndex] = useState(0);
   const [bannerVisible, setBannerVisible] = useState(true);
   const [activeGenre, setActiveGenre] = useState<string | null>(null);
   const [showGenres, setShowGenres] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setFiltersExpanded(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
 
   // Auto-rotate announcements every 5 seconds
   useEffect(() => {
     if (!bannerVisible) return;
-    
+
     const interval = setInterval(() => {
-      setCurrentAnnouncementIndex(prevIndex => 
+      setCurrentAnnouncementIndex(prevIndex =>
         prevIndex === announcements.length - 1 ? 0 : prevIndex + 1
       );
     }, 5000);
-    
+
     return () => clearInterval(interval);
   }, [bannerVisible]);
 
@@ -260,7 +281,7 @@ function AiChat() {
   const activeMenuItems = useMemo(() => {
     return menuItems.map(item => ({
       ...item,
-      active: 
+      active:
         (item.label === 'Home' && location.pathname === '/ai') ||
         (item.label === 'Showdown' && location.pathname === '/showdown') ||
         (item.label === 'Create Buddy' && location.pathname === '/create-buddy') ||
@@ -318,16 +339,16 @@ function AiChat() {
   // Initialize random views and likes for each character
   useEffect(() => {
     const storedLikes = localStorage.getItem('likes');
-    
+
     if (storedLikes) {
       setLikes(JSON.parse(storedLikes));
     } else {
       const initialLikes: Record<string, number> = {};
-      
+
       Object.entries(characters).forEach(([slug, character]) => {
         initialLikes[slug] = Math.floor(Math.random() * 1000);
       });
-      
+
       setLikes(initialLikes);
     }
   }, []);
@@ -349,7 +370,7 @@ function AiChat() {
   const toggleFavorite = (e: React.MouseEvent, slug: string) => {
     e.stopPropagation();
     console.log('Toggle favorite for:', slug, 'Current favorites:', favorites);
-    
+
     // Get the most up-to-date favorites from localStorage if possible
     let currentFavorites = [...favorites];
     if (isLocalStorageAvailable()) {
@@ -362,17 +383,17 @@ function AiChat() {
         console.error('Error reading favorites before toggle:', error);
       }
     }
-    
+
     // Update favorites state
     const newFavorites = currentFavorites.includes(slug)
       ? currentFavorites.filter(id => id !== slug)
       : [...currentFavorites, slug];
-    
+
     console.log('New favorites state:', newFavorites);
-    
+
     // Update state
     setFavorites(newFavorites);
-    
+
     // Directly update localStorage to ensure it's updated immediately
     if (isLocalStorageAvailable()) {
       try {
@@ -392,9 +413,9 @@ function AiChat() {
   };
 
   const toggleTag = (tag: string) => {
-    setSelectedTags(prev => 
-      prev.includes(tag) 
-        ? prev.filter(t => t !== tag) 
+    setSelectedTags(prev =>
+      prev.includes(tag)
+        ? prev.filter(t => t !== tag)
         : [...prev, tag]
     );
   };
@@ -502,76 +523,76 @@ function AiChat() {
   // Get character lists for each category
   const categoryCharacters = useMemo(() => {
     if (!characters || Object.keys(characters).length === 0) return {};
-    
+
     const allCharacters = Object.entries(characters);
     const randomizedCharacters = [...allCharacters].sort(() => Math.random() - 0.5);
-    
+
     // Get trending slugs to avoid duplication
     const trendingSlugs = Object.entries(characters)
-      .map(([slug, _]) => ({ 
-        slug, 
-        views: views[slug] || 0 
+      .map(([slug, _]) => ({
+        slug,
+        views: views[slug] || 0
       }))
       .sort((a, b) => b.views - a.views)
       .slice(0, 4)
       .map(item => item.slug);
-    
+
     // For You - Random selection of characters with diverse tags
     const forYouCharacters = randomizedCharacters
       .filter(([slug, _]) => !trendingSlugs.includes(slug))
       .slice(0, 10);
-    
+
     // Helper function to ensure we have enough characters in each category
     const ensureSufficientCharacters = (filteredList: [string, any][]) => {
       if (filteredList.length >= 5) return filteredList.slice(0, 10);
-      
+
       // If we don't have enough characters matching the criteria,
       // pad with random characters not already in the list
       const existingSlugs = new Set(filteredList.map(([slug, _]) => slug));
       const additionalCharacters = randomizedCharacters
         .filter(([slug, _]) => !existingSlugs.has(slug) && !trendingSlugs.includes(slug))
         .slice(0, 10 - filteredList.length);
-      
+
       return [...filteredList, ...additionalCharacters];
     };
-    
+
     // Boredom Buster - Entertainment, Fun tags
     const boredomBusterFiltered = allCharacters
-      .filter(([_, character]) => 
-        character.tags && 
-        character.tags.some((tag: string) => 
+      .filter(([_, character]) =>
+        character.tags &&
+        character.tags.some((tag: string) =>
           ['entertainment', 'fun', 'comedy', 'adventure', 'games'].includes(tag.toLowerCase())
         )
       );
     const boredomBusterCharacters = ensureSufficientCharacters(boredomBusterFiltered);
-    
+
     // Action - Action, Adventure, Fighting tags
     const actionFiltered = allCharacters
-      .filter(([_, character]) => 
-        character.tags && 
-        character.tags.some((tag: string) => 
+      .filter(([_, character]) =>
+        character.tags &&
+        character.tags.some((tag: string) =>
           ['action', 'adventure', 'warrior', 'fighter', 'hero', 'battle'].includes(tag.toLowerCase())
         )
       );
     const actionCharacters = ensureSufficientCharacters(actionFiltered);
-    
+
     // Comedy Carnival - Comedy, Humor tags
     const comedyFiltered = allCharacters
-      .filter(([_, character]) => 
-        character.tags && 
-        character.tags.some((tag: string) => 
+      .filter(([_, character]) =>
+        character.tags &&
+        character.tags.some((tag: string) =>
           ['comedy', 'humor', 'funny', 'joke', 'laugh'].includes(tag.toLowerCase())
         )
       );
     const comedyCharacters = ensureSufficientCharacters(comedyFiltered);
-    
+
     // Most Loved - Characters with highest likes
     const mostLovedCharacters = allCharacters
       .map(([slug, character]) => ({ slug, character, likes: likes[slug] || 0 }))
       .sort((a, b) => b.likes - a.likes)
       .slice(0, 10)
       .map(({ slug, character }) => [slug, character] as [string, any]);
-    
+
     // Crowd Pleasers - High view count that aren't trending
     const crowdPleasersCharacters = allCharacters
       .filter(([slug, _]) => !trendingSlugs.includes(slug))
@@ -579,7 +600,7 @@ function AiChat() {
       .sort((a, b) => b.views - a.views)
       .slice(0, 10)
       .map(({ slug, character }) => [slug, character] as [string, any]);
-    
+
     return {
       trendingSlugs,
       forYou: createCategoryCharacters(forYouCharacters),
@@ -608,23 +629,22 @@ function AiChat() {
             </div>
             <span className="text-xl font-bold text-gold">Nexus</span>
           </div>
-          
+
           <div className="space-y-2 mb-6">
             {activeMenuItems.slice(0, 5).map((item) => (
               <button
                 key={item.label}
                 onClick={() => handleMenuClick(item.label)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                  item.active
-                    ? 'bg-gold text-zinc-900'
-                    : 'text-zinc-400 hover:bg-zinc-700/50'
-                }`}
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${item.active
+                  ? 'bg-gold text-zinc-900'
+                  : 'text-zinc-400 hover:bg-zinc-700/50'
+                  }`}
               >
                 <item.icon className="w-5 h-5" />
                 <span className="font-medium">{item.label}</span>
               </button>
             ))}
-            
+
             {/* Leaderboard Button */}
             <button
               onClick={handleViewAllRankings}
@@ -633,16 +653,15 @@ function AiChat() {
               <Trophy className="w-5 h-5" />
               <span className="font-medium">Leaderboard</span>
             </button>
-            
+
             {activeMenuItems.slice(5).map((item) => (
               <button
                 key={item.label}
                 onClick={() => handleMenuClick(item.label)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                  item.active
-                    ? 'bg-gold text-zinc-900'
-                    : 'text-zinc-400 hover:bg-zinc-700/50'
-                }`}
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${item.active
+                  ? 'bg-gold text-zinc-900'
+                  : 'text-zinc-400 hover:bg-zinc-700/50'
+                  }`}
               >
                 <item.icon className="w-5 h-5" />
                 <span className="font-medium">{item.label}</span>
@@ -652,10 +671,13 @@ function AiChat() {
         </div>
       </nav>
 
+
+
       {/* Header */}
       <header className="border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-sm fixed left-56 right-0 top-0 z-50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
+            {/* Left side: Logo + Back */}
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => navigate('/')}
@@ -670,7 +692,10 @@ function AiChat() {
                 </span>
               </div>
             </div>
+
+            {/* Right side: Search + Filter + Upgrade + Profile */}
             <div className="flex items-center space-x-3">
+              {/* Search */}
               <div className="relative w-96">
                 <Search className="absolute left-3 top-2.5 text-zinc-400 w-5 h-5" />
                 <input
@@ -679,30 +704,49 @@ function AiChat() {
                   className="w-full pl-10 pr-4 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-400 focus:outline-none focus:border-gold"
                 />
               </div>
+
+              {/* Filter Button and Dropdown */}
+
               {!showFavorites && (
-                <div className="relative">
-                  <button 
-                    onClick={() => setFiltersExpanded(!filtersExpanded)}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
-                      filtersExpanded 
-                        ? 'bg-gold text-zinc-900 hover:bg-gold/90' 
-                        : 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700/80'
-                    }`}
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setFiltersExpanded(prev => !prev)}
+                    aria-expanded={filtersExpanded}
+                    aria-label="Toggle filter dropdown"
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${filtersExpanded
+                      ? 'bg-gold text-zinc-900 hover:bg-gold/90'
+                      : 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700/80'
+                      }`}
                   >
                     <Filter className="w-5 h-5" />
-                    <span>Filters</span>
-                    {filtersExpanded ? <ChevronUp className="w-4 h-4 ml-1" /> : <ChevronDown className="w-4 h-4 ml-1" />}
+                    <span>Filter</span>
+                    {filtersExpanded ? (
+                      <ChevronUp className="w-4 h-4 ml-1" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 ml-1" />
+                    )}
                   </button>
+
                   {filtersExpanded && (
-                    <div className="absolute top-full left-0 mt-1 w-64 p-4 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    <div className="absolute top-full left-0 mt-2 w-72 p-4 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
                       <input
                         type="text"
                         placeholder="Search tags..."
                         value={tagSearch}
-                        onChange={e => setTagSearch(e.target.value)}
-                        className="w-full mb-2 px-3 py-1 rounded bg-zinc-700 border border-zinc-600 text-white focus:outline-none"
+                        onChange={(e) => setTagSearch(e.target.value)}
+                        className="w-full mb-3 px-3 py-2 rounded bg-zinc-700 border border-zinc-600 text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-gold"
                       />
-                      <div className="flex flex-col space-y-1">
+
+                      {selectedTags.length > 0 && (
+                        <button
+                          onClick={() => setSelectedTags([])}
+                          className="mb-2 text-xs text-red-400 hover:text-red-300 underline"
+                        >
+                          Clear all selected
+                        </button>
+                      )}
+
+                      <div className="flex flex-col space-y-2">
                         {popularTags
                           .filter(tag => tag.toLowerCase().includes(tagSearch.toLowerCase()))
                           .map(tag => (
@@ -717,17 +761,26 @@ function AiChat() {
                                 <span className="text-white text-sm">{tag}</span>
                               </label>
                               {selectedTags.includes(tag) && (
-                                <button onClick={() => toggleTag(tag)} className="text-zinc-400 hover:text-gold">
+                                <button
+                                  onClick={() => toggleTag(tag)}
+                                  className="text-zinc-400 hover:text-gold"
+                                >
                                   <Minus className="w-4 h-4" />
                                 </button>
                               )}
                             </div>
                           ))}
+                        {popularTags.filter(tag => tag.toLowerCase().includes(tagSearch.toLowerCase())).length === 0 && (
+                          <span className="text-sm text-zinc-500">No matching tags found.</span>
+                        )}
                       </div>
                     </div>
                   )}
                 </div>
               )}
+
+
+              {/* Upgrade */}
               <button
                 onClick={() => setShowPricingModal(true)}
                 className="flex items-center space-x-2 px-3 py-2 bg-gold text-zinc-900 rounded-lg hover:bg-gold/90 transition-colors font-medium"
@@ -735,6 +788,8 @@ function AiChat() {
                 <Crown className="w-5 h-5" />
                 <span>Upgrade</span>
               </button>
+
+              {/* Profile */}
               <ProfileButton />
             </div>
           </div>
@@ -758,11 +813,10 @@ function AiChat() {
                   <button
                     key={genre.id}
                     onClick={() => handleGenreSelect(genre.id)}
-                    className={`px-5 py-3 rounded-lg whitespace-nowrap transition-colors ${
-                      activeGenre === genre.id 
-                        ? 'bg-gold text-zinc-900 font-medium' 
-                        : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
-                    }`}
+                    className={`px-5 py-3 rounded-lg whitespace-nowrap transition-colors ${activeGenre === genre.id
+                      ? 'bg-gold text-zinc-900 font-medium'
+                      : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                      }`}
                   >
                     <div className="flex items-center space-x-2">
                       {genre.icon}
@@ -792,8 +846,8 @@ function AiChat() {
                           {Object.entries(characters)
                             .filter(([slug]) => genre.slugs.includes(slug))
                             .map(([slug, character]) => (
-                              <div 
-                                key={slug} 
+                              <div
+                                key={slug}
                                 onClick={() => navigate(`/chat/${slug}`)}
                                 className={`group relative bg-gradient-to-br ${genre.bgColor} rounded-xl overflow-hidden shadow-lg cursor-pointer hover:opacity-90 transition-all duration-300`}
                               >
@@ -801,34 +855,33 @@ function AiChat() {
                                   {genre.icon}
                                   <span className="ml-1">{genre.tagline}</span>
                                 </div>
-                                
+
                                 {/* Image with gradient overlay */}
                                 <div className="aspect-[2/3] relative overflow-hidden">
-                                  <img 
-                                    src={character.image} 
-                                    alt={character.name} 
+                                  <img
+                                    src={character.image}
+                                    alt={character.name}
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                                   />
                                   <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
                                 </div>
-                                
+
                                 {/* Favorite Button */}
                                 <button
                                   onClick={(e) => toggleFavorite(e, slug)}
-                                  className={`absolute top-3 right-3 z-10 p-2 rounded-full backdrop-blur-sm transition-colors ${
-                                    favorites.includes(slug)
-                                      ? 'bg-gold/90 text-zinc-900'
-                                      : 'bg-black/40 text-white hover:bg-black/60'
-                                  }`}
+                                  className={`absolute top-3 right-3 z-10 p-2 rounded-full backdrop-blur-sm transition-colors ${favorites.includes(slug)
+                                    ? 'bg-gold/90 text-zinc-900'
+                                    : 'bg-black/40 text-white hover:bg-black/60'
+                                    }`}
                                 >
                                   <Star className="w-4 h-4" fill={favorites.includes(slug) ? "currentColor" : "none"} />
                                 </button>
-                                
+
                                 {/* Character info at bottom */}
                                 <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
                                   <h3 className="text-white text-xl font-bold mb-1">{character.name}</h3>
                                   <p className="text-amber-400 text-sm mb-3">{character.role}</p>
-                                  
+
                                   <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center text-zinc-300 text-sm">
                                       <Heart className="w-4 h-4 mr-1 text-red-400" />
@@ -838,7 +891,7 @@ function AiChat() {
                                       <span>{views[slug] || 0} views</span>
                                     </div>
                                   </div>
-                                  
+
                                   <button className="w-full bg-black/50 hover:bg-black/70 text-white py-2 rounded-lg font-medium transition-colors text-sm backdrop-blur-sm">
                                     Chat Now
                                   </button>
@@ -854,7 +907,7 @@ function AiChat() {
                 // Show all genres when none is selected
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {genreCategories.map(genre => (
-                    <div 
+                    <div
                       key={genre.id}
                       onClick={() => handleGenreSelect(genre.id)}
                       className={`bg-gradient-to-br ${genre.bgColor} p-6 rounded-xl cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg`}
@@ -871,15 +924,15 @@ function AiChat() {
                           .filter(([slug]) => genre.slugs.includes(slug))
                           .slice(0, 5)
                           .map(([slug, character], index) => (
-                            <div 
+                            <div
                               key={slug}
                               className="w-8 h-8 rounded-full border-2 border-white overflow-hidden"
                               style={{ zIndex: 5 - index }}
                             >
-                              <img 
-                                src={character.image} 
+                              <img
+                                src={character.image}
                                 alt={character.name}
-                                className="w-full h-full object-cover" 
+                                className="w-full h-full object-cover"
                               />
                             </div>
                           ))}
@@ -931,37 +984,35 @@ function AiChat() {
                       <button
                         key={index}
                         onClick={() => setCurrentAnnouncementIndex(index)}
-                        className={`w-3 h-3 rounded-full transition-colors ${
-                          index === currentAnnouncementIndex 
-                            ? 'bg-white' 
-                            : 'bg-white/30 hover:bg-white/50'
-                        }`}
+                        className={`w-3 h-3 rounded-full transition-colors ${index === currentAnnouncementIndex
+                          ? 'bg-white'
+                          : 'bg-white/30 hover:bg-white/50'
+                          }`}
                       />
                     ))}
                   </div>
-                  
+
                   {/* Banner content with Netflix-style animation */}
                   {announcements.map((announcement, index) => (
                     <div
                       key={announcement.id}
-                      className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-                        index === currentAnnouncementIndex 
-                          ? 'opacity-100 z-20' 
-                          : 'opacity-0 z-10'
-                      }`}
+                      className={`absolute inset-0 transition-all duration-700 ease-in-out ${index === currentAnnouncementIndex
+                        ? 'opacity-100 z-20'
+                        : 'opacity-0 z-10'
+                        }`}
                     >
                       {/* Background image with gradient overlay */}
                       <div className="absolute inset-0 w-full h-full">
-                        <img 
-                          src={announcement.image} 
-                          alt="" 
+                        <img
+                          src={announcement.image}
+                          alt=""
                           className="w-full h-full object-cover"
                         />
                         {/* Removed color overlay gradient */}
                         <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-zinc-900/30"></div>
                         <div className="absolute inset-0 bg-gradient-to-r from-zinc-900 via-transparent to-transparent"></div>
                       </div>
-                      
+
                       {/* Content */}
                       <div className="absolute inset-0 flex items-center z-20">
                         <div className="container mx-auto px-12">
@@ -978,7 +1029,7 @@ function AiChat() {
                               {announcement.description}
                             </p>
                             <div>
-                              <button 
+                              <button
                                 onClick={() => {
                                   if (announcement.ctaLink === '#upgrade') {
                                     setShowPricingModal(true);
@@ -1007,11 +1058,10 @@ function AiChat() {
                     <button
                       key={tag}
                       onClick={() => toggleTag(tag)}
-                      className={`px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
-                        selectedTags.includes(tag)
-                          ? 'bg-gold text-zinc-900 font-medium'
-                          : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
-                      }`}
+                      className={`px-4 py-2 rounded-full whitespace-nowrap transition-colors ${selectedTags.includes(tag)
+                        ? 'bg-gold text-zinc-900 font-medium'
+                        : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                        }`}
                     >
                       {tag} ({tagCounts[tag]})
                     </button>
@@ -1037,8 +1087,8 @@ function AiChat() {
                     .filter(([slug]) => ["hinata", "batman", "naruto", "sasuke", "joker", "harry-potter", "wonder-woman", "darth-vader", "iron-man", "goku", "vegeta", "luffy", "zoro", "eren", "mikasa", "kakashi", "itachi", "light-yagami", "l", "tony-stark", "thor", "loki", "thanos", "deadpool", "superman", "spiderman", "captain-america"].includes(slug))
                     .slice(0, 8)
                     .map(([slug, character]) => (
-                      <div 
-                        key={slug} 
+                      <div
+                        key={slug}
                         onClick={() => navigate(`/chat/${slug}`)}
                         className="group relative bg-gradient-to-br from-red-900/30 to-amber-900/30 rounded-xl overflow-hidden shadow-lg cursor-pointer hover:from-red-900/40 hover:to-amber-900/40 transition-all duration-300"
                       >
@@ -1046,34 +1096,33 @@ function AiChat() {
                           <Zap className="w-3 h-3 mr-1" />
                           HOT
                         </div>
-                        
+
                         {/* Image with gradient overlay */}
                         <div className="aspect-[2/3] relative overflow-hidden">
-                          <img 
-                            src={character.image} 
-                            alt={character.name} 
+                          <img
+                            src={character.image}
+                            alt={character.name}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
                         </div>
-                        
+
                         {/* Favorite Button */}
                         <button
                           onClick={(e) => toggleFavorite(e, slug)}
-                          className={`absolute top-3 right-3 z-10 p-2 rounded-full backdrop-blur-sm transition-colors ${
-                            favorites.includes(slug)
-                              ? 'bg-gold/90 text-zinc-900'
-                              : 'bg-black/40 text-white hover:bg-black/60'
-                          }`}
+                          className={`absolute top-3 right-3 z-10 p-2 rounded-full backdrop-blur-sm transition-colors ${favorites.includes(slug)
+                            ? 'bg-gold/90 text-zinc-900'
+                            : 'bg-black/40 text-white hover:bg-black/60'
+                            }`}
                         >
                           <Star className="w-4 h-4" fill={favorites.includes(slug) ? "currentColor" : "none"} />
                         </button>
-                        
+
                         {/* Character info at bottom */}
                         <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
                           <h3 className="text-white text-xl font-bold mb-1">{character.name}</h3>
                           <p className="text-amber-400 text-sm mb-3">{character.role}</p>
-                          
+
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center text-zinc-300 text-sm">
                               <Heart className="w-4 h-4 mr-1 text-red-400" />
@@ -1088,7 +1137,7 @@ function AiChat() {
                               <span>{views[slug] || 0} views</span>
                             </div>
                           </div>
-                          
+
                           <button className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-medium transition-colors text-sm">
                             Chat Now
                           </button>
@@ -1099,7 +1148,7 @@ function AiChat() {
               </div>
 
               {/* TrendingCharacters component */}
-              <TrendingCharacters 
+              <TrendingCharacters
                 characters={characters}
                 views={views}
                 likes={likes}
@@ -1118,7 +1167,7 @@ function AiChat() {
                 handleLike={handleLike}
               />
 
-              <CharacterCategory 
+              <CharacterCategory
                 title="Boredom Buster"
                 characters={categoryCharacters.boredomBuster || []}
                 icon={<Smile className="w-5 h-5 text-nexus-purple-500" />}
@@ -1127,7 +1176,7 @@ function AiChat() {
                 handleLike={handleLike}
               />
 
-              <CharacterCategory 
+              <CharacterCategory
                 title="Action"
                 characters={categoryCharacters.action || []}
                 icon={<Zap className="w-5 h-5 text-yellow-500" />}
@@ -1136,7 +1185,7 @@ function AiChat() {
                 handleLike={handleLike}
               />
 
-              <CharacterCategory 
+              <CharacterCategory
                 title="Comedy Carnival"
                 characters={categoryCharacters.comedy || []}
                 icon={<Radio className="w-5 h-5 text-nexus-blue-400" />}
@@ -1145,7 +1194,7 @@ function AiChat() {
                 handleLike={handleLike}
               />
 
-              <CharacterCategory 
+              <CharacterCategory
                 title="Most Loved"
                 characters={categoryCharacters.mostLoved || []}
                 icon={<Heart className="w-5 h-5 text-red-500" />}
@@ -1154,7 +1203,7 @@ function AiChat() {
                 handleLike={handleLike}
               />
 
-              <CharacterCategory 
+              <CharacterCategory
                 title="Crowd Pleasers"
                 characters={categoryCharacters.crowdPleasers || []}
                 icon={<Award className="w-5 h-5 text-nexus-purple-400" />}
@@ -1170,7 +1219,7 @@ function AiChat() {
                     <h2 className="text-2xl font-poppins font-medium text-white">Explore All Characters</h2>
                     <p className="text-nexus-neutral-400 mt-1">Discover more characters beyond our curated selections</p>
                   </div>
-                  
+
                   {selectedTags.length > 0 && (
                     <div className="flex flex-wrap gap-2 justify-end">
                       {selectedTags.map((tag) => (
@@ -1187,8 +1236,8 @@ function AiChat() {
                           </button>
                         </div>
                       ))}
-                      
-                      <button 
+
+                      <button
                         onClick={() => setSelectedTags([])}
                         className="px-3 py-1.5 bg-nexus-neutral-800 text-nexus-neutral-300 rounded-lg text-sm hover:bg-nexus-neutral-700"
                       >
@@ -1213,12 +1262,12 @@ function AiChat() {
                         ...(categoryCharacters.mostLoved || []).map(c => c.slug),
                         ...(categoryCharacters.crowdPleasers || []).map(c => c.slug)
                       ]);
-                      
+
                       // When viewing filtered tags, don't exclude category characters
                       if (selectedTags.length > 0) {
                         return true;
                       }
-                      
+
                       // Otherwise exclude characters already shown in categories
                       return !categorySlugs.has(slug);
                     })
@@ -1227,28 +1276,28 @@ function AiChat() {
                       if (selectedTags.length === 0) {
                         return true;
                       }
-                      
+
                       // Check if character matches any of the selected tags
                       return selectedTags.some(tag => {
                         const lowerTag = tag.toLowerCase();
                         return (
                           // Check tags array first
-                          (character.tags && 
-                           character.tags.some((t: string) => 
-                             t.toLowerCase().includes(lowerTag)
-                           )) ||
+                          (character.tags &&
+                            character.tags.some((t: string) =>
+                              t.toLowerCase().includes(lowerTag)
+                            )) ||
                           // Check role
                           character.role.toLowerCase().includes(lowerTag) ||
                           // Check traits if they exist
-                          (character.personality?.traits && 
-                           character.personality.traits.some((trait: string) => 
-                             trait.toLowerCase().includes(lowerTag)
-                           )) ||
+                          (character.personality?.traits &&
+                            character.personality.traits.some((trait: string) =>
+                              trait.toLowerCase().includes(lowerTag)
+                            )) ||
                           // Check interests if they exist
-                          (character.personality?.interests && 
-                           character.personality.interests.some((interest: string) => 
-                             interest.toLowerCase().includes(lowerTag)
-                           )) ||
+                          (character.personality?.interests &&
+                            character.personality.interests.some((interest: string) =>
+                              interest.toLowerCase().includes(lowerTag)
+                            )) ||
                           // Gender tags
                           (lowerTag === 'male' && !character.role.toLowerCase().includes('female')) ||
                           (lowerTag === 'female' && character.role.toLowerCase().includes('female')) ||
@@ -1261,97 +1310,96 @@ function AiChat() {
                       });
                     })
                     .map(([slug, character]) => (
-                    <div
-                      key={slug}
-                      onClick={() => navigate(`/chat/${slug}`)}
-                      className="bg-nexus-neutral-800/50 rounded-xl overflow-hidden group cursor-pointer hover:bg-nexus-neutral-700/50 transition-colors shadow-soft"
-                    >
-                      <div className="relative aspect-square">
-                        {/* Favorite Button */}
-                        <button
-                          onClick={(e) => toggleFavorite(e, slug)}
-                          className={`absolute top-3 right-3 z-10 p-2 rounded-full backdrop-blur-sm transition-all duration-200 ${
-                            favorites.includes(slug)
+                      <div
+                        key={slug}
+                        onClick={() => navigate(`/chat/${slug}`)}
+                        className="bg-nexus-neutral-800/50 rounded-xl overflow-hidden group cursor-pointer hover:bg-nexus-neutral-700/50 transition-colors shadow-soft"
+                      >
+                        <div className="relative aspect-square">
+                          {/* Favorite Button */}
+                          <button
+                            onClick={(e) => toggleFavorite(e, slug)}
+                            className={`absolute top-3 right-3 z-10 p-2 rounded-full backdrop-blur-sm transition-all duration-200 ${favorites.includes(slug)
                               ? 'bg-gold/90 text-zinc-900'
                               : 'bg-black/50 text-white hover:bg-black/70'
-                          }`}
-                        >
-                          <Star className="w-5 h-5" fill={favorites.includes(slug) ? "currentColor" : "none"} />
-                        </button>
+                              }`}
+                          >
+                            <Star className="w-5 h-5" fill={favorites.includes(slug) ? "currentColor" : "none"} />
+                          </button>
 
-                        <img
-                          src={character.image}
-                          alt={character.name}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/90 to-transparent" />
+                          <img
+                            src={character.image}
+                            alt={character.name}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/90 to-transparent" />
 
-                        {/* Stats */}
-                        <div className="absolute top-3 left-3 flex items-center space-x-2 text-white text-sm">
-                          <div className="px-2 py-1 bg-black/50 backdrop-blur-sm rounded-full">
-                            {views[slug]?.toLocaleString() || 0} views
+                          {/* Stats */}
+                          <div className="absolute top-3 left-3 flex items-center space-x-2 text-white text-sm">
+                            <div className="px-2 py-1 bg-black/50 backdrop-blur-sm rounded-full">
+                              {views[slug]?.toLocaleString() || 0} views
+                            </div>
+                          </div>
+
+                          <div className="absolute bottom-4 left-4 right-4">
+                            <h3 className="text-xl font-bold text-white mb-1">{character.name}</h3>
+                            <p className="text-gold text-sm">{character.role}</p>
+
+                            {/* Tags */}
+                            {character.tags && character.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                {character.tags.slice(0, 2).map(tag => (
+                                  <span
+                                    key={tag}
+                                    className="px-2 py-0.5 bg-zinc-700/80 text-xs text-zinc-300 rounded-full"
+                                  >
+                                    {tag}
+                                  </span>
+                                ))}
+                                {character.tags.length > 2 && (
+                                  <span className="px-2 py-0.5 bg-zinc-700/80 text-xs text-zinc-300 rounded-full">
+                                    +{character.tags.length - 2}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
-
-                        <div className="absolute bottom-4 left-4 right-4">
-                          <h3 className="text-xl font-bold text-white mb-1">{character.name}</h3>
-                          <p className="text-gold text-sm">{character.role}</p>
-                          
-                          {/* Tags */}
-                          {character.tags && character.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-2">
-                              {character.tags.slice(0, 2).map(tag => (
-                                <span 
-                                  key={tag} 
-                                  className="px-2 py-0.5 bg-zinc-700/80 text-xs text-zinc-300 rounded-full"
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                              {character.tags.length > 2 && (
-                                <span className="px-2 py-0.5 bg-zinc-700/80 text-xs text-zinc-300 rounded-full">
-                                  +{character.tags.length - 2}
-                                </span>
-                              )}
-                            </div>
-                          )}
+                        <div className="p-4">
+                          <p className="text-zinc-400 text-sm mb-4">{character.description}</p>
+                          <div className="flex items-center justify-between mb-4">
+                            <button
+                              onClick={(e) => handleLike(e, slug)}
+                              className="flex items-center space-x-1 text-zinc-400 hover:text-gold transition-colors"
+                            >
+                              <Heart className="w-5 h-5" />
+                              <span>{likes[slug]?.toLocaleString() || 0}</span>
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // Share functionality would go here
+                              }}
+                              className="text-zinc-400 hover:text-gold transition-colors"
+                            >
+                              <Share2 className="w-5 h-5" />
+                            </button>
+                          </div>
+                          <div className="flex space-x-3">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/chat/${slug}`);
+                              }}
+                              className="flex-1 flex items-center justify-center space-x-2 px-4 py-3 bg-gold text-zinc-900 rounded-lg hover:bg-gold/90 transition-all duration-200 font-medium group"
+                            >
+                              <MessageSquare className="w-5 h-5 transition-transform group-hover:scale-110" />
+                              <span>Chat Now</span>
+                            </button>
+                          </div>
                         </div>
                       </div>
-                      <div className="p-4">
-                        <p className="text-zinc-400 text-sm mb-4">{character.description}</p>
-                        <div className="flex items-center justify-between mb-4">
-                          <button
-                            onClick={(e) => handleLike(e, slug)}
-                            className="flex items-center space-x-1 text-zinc-400 hover:text-gold transition-colors"
-                          >
-                            <Heart className="w-5 h-5" />
-                            <span>{likes[slug]?.toLocaleString() || 0}</span>
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              // Share functionality would go here
-                            }}
-                            className="text-zinc-400 hover:text-gold transition-colors"
-                          >
-                            <Share2 className="w-5 h-5" />
-                          </button>
-                        </div>
-                        <div className="flex space-x-3">
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/chat/${slug}`);
-                            }}
-                            className="flex-1 flex items-center justify-center space-x-2 px-4 py-3 bg-gold text-zinc-900 rounded-lg hover:bg-gold/90 transition-all duration-200 font-medium group"
-                          >
-                            <MessageSquare className="w-5 h-5 transition-transform group-hover:scale-110" />
-                            <span>Chat Now</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
             </>
@@ -1413,13 +1461,13 @@ function AiChat() {
                           <div className="absolute bottom-4 left-4 right-4">
                             <h3 className="text-xl font-bold text-white mb-1">{character.name}</h3>
                             <p className="text-gold text-sm">{character.role}</p>
-                            
+
                             {/* Tags */}
                             {character.tags && character.tags.length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-2">
                                 {character.tags.slice(0, 3).map(tag => (
-                                  <span 
-                                    key={tag} 
+                                  <span
+                                    key={tag}
                                     className="px-2 py-0.5 bg-zinc-700/80 text-xs text-zinc-300 rounded-full"
                                   >
                                     {tag}
@@ -1455,7 +1503,7 @@ function AiChat() {
                             </button>
                           </div>
                           <div className="flex space-x-3">
-                            <button 
+                            <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 navigate(`/chat/${slug}`);
@@ -1477,10 +1525,10 @@ function AiChat() {
       </main>
 
       <FeatureNavigation />
-      
+
       {/* Support Bot Icon */}
       <div className="fixed right-6 bottom-24 z-50">
-        <button 
+        <button
           className="group relative"
           onClick={() => {
             // Support bot functionality will go here
@@ -1488,7 +1536,7 @@ function AiChat() {
           }}
         >
           <SupportBotIcon size="lg" />
-          
+
           {/* Tooltip */}
           <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 px-3 py-2 bg-zinc-800 text-zinc-300 text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
             Need help? Click to chat!
@@ -1502,7 +1550,7 @@ function AiChat() {
         onClose={() => setShowCreateModal(false)}
         onSubmit={handleCreateCharacter}
       />
-      
+
       {/* Pricing Modal */}
       <PricingModal
         isOpen={showPricingModal}
@@ -1510,7 +1558,7 @@ function AiChat() {
       />
 
       {/* Full Leaderboard Modal */}
-      <CharacterLeaderboard 
+      <CharacterLeaderboard
         characters={characters}
         views={views}
         isOpen={showFullLeaderboard}
@@ -1519,9 +1567,9 @@ function AiChat() {
 
       {/* Character Created Notification */}
       {newCharacter && (
-        <CharacterCreatedNotification 
-          characterName={newCharacter} 
-          onClose={() => setNewCharacter(null)} 
+        <CharacterCreatedNotification
+          characterName={newCharacter}
+          onClose={() => setNewCharacter(null)}
         />
       )}
     </div>
