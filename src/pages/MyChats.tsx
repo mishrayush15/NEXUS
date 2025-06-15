@@ -223,6 +223,7 @@ function MyChats() {
                 <Star className="w-5 h-5" />
                 <span>Favorites</span>
               </button>
+              
               <ProfileButton />
             </div>
           </div>
