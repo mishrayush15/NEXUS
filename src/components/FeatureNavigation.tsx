@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Bot, Eye, EyeOff, Layers, MessageSquare, Video } from 'lucide-react';
 import { useState } from 'react';
 import { useCompanion } from '../contexts/CompanionContext';
+import { useEffect } from 'react';
 
 // Features list
 const features = [
@@ -32,6 +33,22 @@ export function FeatureNavigation() {
   const [isVisible, setIsVisible] = useState(true);
   const [opacity, setOpacity] = useState(1);
   const { selectedCompanion } = useCompanion();
+
+
+useEffect(() => {
+  const handleMouseMove = (e) => {
+    const threshold = 100; // pixels from bottom
+    const isNearBottom = window.innerHeight - e.clientY < threshold;
+    if (isNearBottom) {
+      setIsVisible(true);
+    }
+  };
+
+  window.addEventListener('mousemove', handleMouseMove);
+  return () => {
+    window.removeEventListener('mousemove', handleMouseMove);
+  };
+}, []);
 
   return (
     <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${
