@@ -301,7 +301,7 @@ export function CreateCharacterModal({ isOpen, onClose, onSubmit }: CreateCharac
                 if (step < 3) {
                   setStep(prev => prev + 1);
                 } else {
-                  handleSubmit(new Event('submit'));
+                  onSubmit({ ...formData, tags: selectedTags });
                 }
               }}
               className="px-6 py-2 bg-gold text-zinc-900 rounded-lg hover:bg-gold/90 transition-colors font-medium"

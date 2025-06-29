@@ -2,7 +2,7 @@ interface Theme {
   id: string;
   name: string;
   description: string;
-  category: 'anime' | 'movie' | 'nature' | 'emotion';
+  category: 'anime' | 'movie' | 'nature' | 'emotion'| 'custom';
   colors: {
     background: string;
     surface: string;
@@ -16,6 +16,7 @@ interface Theme {
     primary: string;
     surface: string;
   };
+   backgroundImage?: string; 
 }
 
 export const themes: Record<string, Theme> = {
@@ -244,65 +245,8 @@ export const themes: Record<string, Theme> = {
     }
   },
 
-  'library': {
-    id: 'library',
-    name: 'Library',
-    description: 'Warm earth tones inspired by cozy libraries',
-    category: 'emotion',
-    colors: {
-      background: '#fdf6e3',
-      surface: '#eee8d5',
-      primary: '#b58900',
-      secondary: '#2aa198',
-      text: '#586e75',
-      textMuted: '#93a1a1',
-      border: '#839496'
-    },
-    gradients: {
-      primary: 'linear-gradient(135deg, #b58900 0%, #2aa198 100%)',
-      surface: 'linear-gradient(180deg, rgba(238,232,213,0.8) 0%, rgba(253,246,227,0.9) 100%)'
-    }
-  },
-
-  'cozy-cafe': {
-    id: 'cozy-cafe',
-    name: 'Cozy Cafe',
-    description: 'Warm browns and cream tones like a favorite coffee shop',
-    category: 'emotion',
-    colors: {
-      background: '#5d4037',
-      surface: '#6d4c41',
-      primary: '#bcaaa4',
-      secondary: '#d7ccc8',
-      text: '#efebe9',
-      textMuted: '#b0bec5',
-      border: '#4e342e'
-    },
-    gradients: {
-      primary: 'linear-gradient(135deg, #5d4037 0%, #bcaaa4 100%)',
-      surface: 'linear-gradient(180deg, rgba(109,76,65,0.8) 0%, rgba(93,64,55,0.9) 100%)'
-    }
-  },
-
-  'pastel-love': {
-    id: 'pastel-love',
-    name: 'Pastel Love',
-    description: 'Soft pastel pinks and blues for gentle relaxation',
-    category: 'emotion',
-    colors: {
-      background: '#ffebee',
-      surface: '#ffcdd2',
-      primary: '#f8bbd0',
-      secondary: '#b2ebf2',
-      text: '#4a4a4a',
-      textMuted: '#9e9e9e',
-      border: '#ec407a'
-    },
-    gradients: {
-      primary: 'linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%)',
-      surface: 'linear-gradient(180deg, rgba(255,204,210,0.8) 0%, rgba(255,235,238,0.9) 100%)'
-    }
-  },
+  
+  
 
   'cat-cuddle': {
     id: 'cat-cuddle',
@@ -344,25 +288,7 @@ export const themes: Record<string, Theme> = {
       surface: 'linear-gradient(180deg, rgba(26,26,46,0.8) 0%, rgba(15,15,26,0.9) 100%)'
     }
   },
-  'geometric-minimal': {
-    id: 'geometric-minimal',
-    name: 'Minimal Geometry',
-    description: 'Clean, minimalist design with subtle geometric accents',
-    category: 'emotion',
-    colors: {
-      background: '#f8fafc',
-      surface: '#f1f5f9',
-      primary: '#0f172a',
-      secondary: '#334155',
-      text: '#1e293b',
-      textMuted: '#64748b',
-      border: '#cbd5e1'
-    },
-    gradients: {
-      primary: 'linear-gradient(135deg, #0f172a 0%, #334155 100%)',
-      surface: 'linear-gradient(180deg, rgba(241,245,249,0.8) 0%, rgba(248,250,252,0.9) 100%)'
-    }
-  },
+  
   'geometric-sunset': {
     id: 'geometric-sunset',
     name: 'Geometric Sunset',
@@ -401,6 +327,22 @@ export const themes: Record<string, Theme> = {
       surface: 'linear-gradient(180deg, rgba(3,105,161,0.8) 0%, rgba(12,74,110,0.9) 100%)'
     }
   },
+  'custom-background': {
+    id: 'custom-background',
+    name: 'Custom Background',
+    description: 'A theme with a user-selected background image',
+    category: 'custom', // or another valid category, since 'custom' is not in Theme interface
+    colors: {
+      background: '#22223b',
+      surface: '#4a4e69',
+      primary: '#9a8c98',
+      secondary: '#c9ada7',
+      text: '#f2e9e4',
+      textMuted: '#b8b8d1',
+      border: '#22223b'
+    },
+    backgroundImage: '', // This will be set dynamically
+  }
 };
 
 // Add dark room theme

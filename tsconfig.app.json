@@ -18,7 +18,12 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* Type Definitions */
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["node", "react", "react-dom"]
   },
-  "include": ["src"]
+  "include": ["src", "src/types/global.d.ts"],
+  "exclude": ["node_modules"]
 }

@@ -74,7 +74,7 @@ export default function TrendingCharacters({
         {trendingCharacters.map(({ slug, character, views: viewCount }) => (
           <div
             key={slug}
-            className="card relative group overflow-hidden"
+            className="card relative group overflow-hidden transition-transform duration-300 hover:scale-105"
           >
             {/* Gradient overlay for better text visibility */}
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-nexus-neutral-900/20 to-nexus-neutral-900/80 z-10"></div>
@@ -102,8 +102,8 @@ export default function TrendingCharacters({
               <img
                 src={character.image}
                 alt={character.name}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              />
+               className="w-full h-full object-cover" // <-- no hover/scale class here
+    />
             </div>
             
             {/* Character info overlay */}

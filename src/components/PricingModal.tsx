@@ -99,66 +99,66 @@ export function PricingModal({ isOpen, onClose }: PricingModalProps) {
         {/* Plans */}
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {plans.map((plan) => (
-              <div
-                key={plan.name}
-                className={`relative bg-zinc-800/50 rounded-xl overflow-hidden ${
-                  plan.popular ? 'ring-2 ring-purple-500' : ''
-                }`}
-              >
-                {plan.popular && (
-                  <div className="absolute top-0 right-0 bg-purple-500 text-white px-4 py-1 text-sm font-medium rounded-bl-xl">
-                    Best Value
-                  </div>
-                )}
-                
-                <div className="p-6">
-                  {/* Plan Header */}
-                  <div className="flex items-center space-x-3 mb-4">
-                    <div className={`w-12 h-12 rounded-xl bg-${plan.color}/10 flex items-center justify-center`}>
-                      <plan.icon className={`w-6 h-6 text-${plan.color}`} />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white">{plan.name}</h3>
-                      <div>
-                        <p className="text-gold font-medium">{plan.price}</p>
-                        {plan.perMonth && (
-                          <p className="text-sm text-zinc-400">{plan.perMonth}</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+           {plans.map((plan) => (
+  <div
+    key={plan.name}
+    className={`relative bg-zinc-800/50 rounded-xl overflow-hidden flex flex-col ${
+      plan.popular ? 'ring-2 ring-purple-500' : ''
+    }`}
+  >
+    {plan.popular && (
+      <div className="absolute top-0 right-0 bg-purple-500 text-white px-4 py-1 text-sm font-medium rounded-bl-xl">
+        Best Value
+      </div>
+    )}
 
-                  {plan.savings && (
-                    <div className="mb-4 px-3 py-1.5 bg-purple-500/10 text-purple-400 rounded-lg text-sm inline-block">
-                      Save {plan.savings}
-                    </div>
-                  )}
+    <div className="p-6 flex-1 flex flex-col">
+      {/* Plan Header */}
+      <div className="flex items-center space-x-3 mb-4">
+        <div className={`w-12 h-12 rounded-xl bg-${plan.color}/10 flex items-center justify-center`}>
+          <plan.icon className={`w-6 h-6 text-${plan.color}`} />
+        </div>
+        <div>
+          <h3 className="text-xl font-bold text-white">{plan.name}</h3>
+          <div>
+            <p className="text-gold font-medium">{plan.price}</p>
+            {plan.perMonth && (
+              <p className="text-sm text-zinc-400">{plan.perMonth}</p>
+            )}
+          </div>
+        </div>
+      </div>
 
-                  {/* Features */}
-                  <ul className="space-y-3 mb-6">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-start space-x-2 text-zinc-300">
-                        <Check className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
+      {plan.savings && (
+        <div className="mb-4 px-3 py-1.5 bg-purple-500/10 text-purple-400 rounded-lg text-sm inline-block">
+          Save {plan.savings}
+        </div>
+      )}
 
-                  {/* Subscribe Button */}
-                  <button
-                    onClick={() => handleSubscribe(plan.name)}
-                    className={`w-full py-3 rounded-lg transition-colors font-medium ${
-                      plan.popular ? 'bg-purple-500 text-white hover:bg-purple-600' :
-                      plan.name === 'Monthly' ? 'bg-gold text-zinc-900 hover:bg-gold/90' :
-                      'bg-emerald-500 text-white hover:bg-emerald-600'
-                    }`}
-                  >
-                    Subscribe Now
-                  </button>
-                </div>
-              </div>
-            ))}
+      {/* Features */}
+      <ul className="space-y-3 mb-6">
+        {plan.features.map((feature) => (
+          <li key={feature} className="flex items-start space-x-2 text-zinc-300">
+            <Check className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
+            <span>{feature}</span>
+          </li>
+        ))}
+      </ul>
+
+      {/* Subscribe Button aligned at the bottom */}
+      <button
+        onClick={() => handleSubscribe(plan.name)}
+        className={`mt-auto w-full py-3 rounded-lg transition-colors font-medium ${
+          plan.popular ? 'bg-purple-500 text-white hover:bg-purple-600' :
+          plan.name === 'Monthly' ? 'bg-gold text-zinc-900 hover:bg-gold/90' :
+          'bg-emerald-500 text-white hover:bg-emerald-600'
+        }`}
+      >
+        Subscribe Now
+      </button>
+    </div>
+  </div>
+))}
           </div>
         </div>
 

@@ -17,7 +17,7 @@ export default function GroupChat() {
       id: '1',
       name: 'Anime Enthusiasts',
       description: 'Discuss your favorite anime and manga',
-      members: 128,
+      members: ['user1', 'user2', 'user3'],
       category: 'Anime',
       messages: []
     },
@@ -25,7 +25,7 @@ export default function GroupChat() {
       id: '2',
       name: 'Tech Talk',
       description: 'Latest in technology and programming',
-      members: 256,
+      members: ['user1', 'user4', 'user5'],
       category: 'Technology',
       messages: []
     },
@@ -33,7 +33,7 @@ export default function GroupChat() {
       id: '3',
       name: 'Movie Buffs',
       description: 'Movie reviews and discussions',
-      members: 89,
+      members: ['user2', 'user6'],
       category: 'Movies',
       messages: []
     }

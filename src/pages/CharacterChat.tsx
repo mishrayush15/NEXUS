@@ -501,13 +501,15 @@ function CharacterChat() {
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (file && file.type.startsWith("image/")) {
       // Create a preview message for the file
       const fileMessage = `[File: ${file.name}] - ${(file.size / 1024).toFixed(
         2
       )}KB`;
       setMessages((prev) => [...prev, { text: fileMessage, sender: "user" }]);
-
+  const imageUrl = URL.createObjectURL(file);
+    themes["custom-background"].backgroundImage = imageUrl;
+    setActiveTheme("custom-background");
       // Clear the input
       event.target.value = "";
     }
@@ -530,6 +532,18 @@ function CharacterChat() {
     } as React.CSSProperties;
   };
 
+  function handleCustomBackgroundUpload(event: React.ChangeEvent<HTMLInputElement>): void {
+    const file = event.target.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      const imageUrl = URL.createObjectURL(file);
+      themes["custom-background"].backgroundImage = imageUrl;
+      setActiveTheme("custom-background");
+      setShowThemes(false);
+      // Optionally clear the input value
+      event.target.value = "";
+    }
+  }
+
   return (
     <div
       className="min-h-screen flex"
@@ -551,7 +565,7 @@ function CharacterChat() {
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
-            opacity: 0.15,
+            //opacity: 0.15,
           }}
         />
 
@@ -603,7 +617,7 @@ function CharacterChat() {
           <div>
             <h3 className="text-lg font-semibold text-gold mb-3">
               Personality Traits
-            </h3>
+            </h3> 
             <div className="flex flex-wrap gap-2">
               {character.personality.traits.map((trait) => (
                 <span
@@ -772,7 +786,7 @@ function CharacterChat() {
 
               <div className="p-6 overflow-y-auto custom-scrollbar">
                 {/* Theme Categories */}
-                {(["anime", "movie", "nature", "emotion"] as const).map(
+                {(["anime", "movie", "nature", "emotion","custom"] as const).map(
                   (category) => (
                     <div key={category} className="mb-8">
                       <h3 className="text-lg font-semibold text-gold mb-4 capitalize">
@@ -780,30 +794,50 @@ function CharacterChat() {
                       </h3>
                       <div className="grid grid-cols-3 gap-4">
                         {Object.values(themes)
-                          .filter((theme) => theme.category === category)
-                          .map((theme) => (
-                            <button
-                              key={theme.id}
-                              onClick={() => applyTheme(theme.id)}
-                              className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                                activeTheme === theme.id
-                                  ? "border-gold bg-zinc-700/50"
-                                  : "border-zinc-700 hover:border-zinc-600 bg-zinc-800/50"
-                              }`}
-                              style={{
-                                background:
-                                  theme.gradients?.surface ||
-                                  theme.colors.surface,
-                                borderColor: theme.colors.primary,
-                              }}>
-                              <h4 className="text-white font-medium mb-1">
-                                {theme.name}
-                              </h4>
-                              <p className="text-sm text-zinc-400">
-                                {theme.description}
-                              </p>
-                            </button>
-                          ))}
+    .filter((theme) => theme.category === category)
+  .map((theme) =>
+    theme.id === "custom-background" ? (
+      <label
+        key={theme.id}
+        className="relative p-4 rounded-lg border-2 bg-zinc-800/50 border-zinc-700 flex flex-col items-start cursor-pointer hover:border-gold transition"
+        style={{ minHeight: 120 }}
+      >
+        <h4 className="text-white font-medium mb-1">{theme.name}</h4>
+        <p className="text-sm text-zinc-400 mb-2">{theme.description}</p>
+        <span className="bg-gold/80 px-2 py-1 rounded text-xs text-black font-semibold hover:bg-gold transition mt-2">
+          Upload Image
+        </span>
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleCustomBackgroundUpload}
+        />
+      </label>
+      ) : (
+        <button
+          key={theme.id}
+          onClick={() => applyTheme(theme.id)}
+          className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+            activeTheme === theme.id
+              ? "border-gold bg-zinc-700/50"
+              : "border-zinc-700 hover:border-zinc-600 bg-zinc-800/50"
+          }`}
+          style={{
+            background:
+              theme.gradients?.surface ||
+              theme.colors.surface,
+            borderColor: theme.colors.primary,
+          }}>
+          <h4 className="text-white font-medium mb-1">
+            {theme.name}
+          </h4>
+          <p className="text-sm text-zinc-400">
+            {theme.description}
+          </p>
+        </button>
+      )
+    )}
                       </div>
                     </div>
                   )
@@ -816,19 +850,21 @@ function CharacterChat() {
         {/* Messages */}
         <div
           className="flex-1 overflow-y-auto pt-20 pb-40 relative"
-          ref={messagesEndRef}>
+          >
           {/* Static Background Image */}
-          <div
-            className="fixed inset-0 z-0"
-            style={{
-              backgroundImage: `url(${character.image})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              backgroundAttachment: "fixed",
-              opacity: 0.15, // Reduced opacity for better readability
-            }}
-          />
+      <div
+        className="fixed inset-0 z-0"
+        style={{
+          backgroundImage: themes[activeTheme]?.backgroundImage
+            ? `url(${themes[activeTheme].backgroundImage})`
+            : `url(${character.image})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundAttachment: "fixed",
+          opacity: 0.15, // Reduced opacity for better readability
+        }}
+      />
 
           {/* Content Container */}
           <div className="relative z-10 max-w-3xl mx-auto px-6 space-y-6 pb-6">
@@ -901,7 +937,7 @@ function CharacterChat() {
 
         {/* Chat Input */}
         <div
-          className="fixed bottom-0 right-0 backdrop-blur-lg transition-all duration-300"
+          className="fixed bottom-0 right-0 backdrop-blur-lg transition-all duration-300 z-50"
           style={{
             left: showInfo ? "320px" : "0",
             background: `${
