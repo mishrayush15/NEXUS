@@ -26,16 +26,15 @@ import { SupportBotIcon } from "../components/SupportBotIcon";
 import { FeatureNavigation } from "../components/FeatureNavigation";
 import { PricingModal } from "../components/PricingModal";
 import { ProfileButton } from "../components/ProfileButton";
-// import { CompactLeaderboard } from "../components/CompactLeaderboard";
 import { CharacterLeaderboard } from "../components/CharacterLeaderboard";
 import { useCharacterViews } from "../utils/viewsManager";
-// import AIPersonalityModal from "../components/AIPersonalityModal";
 import CharacterCreatedNotification from "../components/CharacterCreatedNotification";
 import TrendingCharacters from "../components/TrendingCharacters";
 import CharacterCategory from "../components/CharacterCategory";
+import CharacterCardSkeleton from "../components/CharacterCardSkeleton";
 
-import { characters } from "../utils/characters";
-import { menuItems, announcements } from "../data/AI-chat-data/data.ts";
+import { useCharacterContext } from "../contexts/CharacterContext"; // ✅ Import global context
+import { menuItems, announcements } from "../data/AI-chat-data/data";
 
 // Add genre categories
 const genreCategories = [
@@ -221,6 +220,7 @@ const genreCategories = [
 function AiChat() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { characters, loading: loadingCharacters } = useCharacterContext(); // ✅ Use global shared characters
   const [showFavorites, setShowFavorites] = useState(false);
   const [showTags, setShowTags] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -663,6 +663,16 @@ function AiChat() {
     setActiveGenre(genreId === activeGenre ? null : genreId);
   };
 
+  if (loadingCharacters) {
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-4">
+        {Array.from({ length: 8 }).map((_, idx) => (
+          <CharacterCardSkeleton key={idx} />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-zinc-900">
       {/* Side Menu */}
@@ -687,8 +697,7 @@ function AiChat() {
                   item.active
                     ? "bg-gold text-zinc-900"
                     : "text-zinc-400 hover:bg-zinc-700/50"
-                }`}
-              >
+                }`}>
                 <item.icon className="w-5 h-5" />
                 <span className="font-medium">{item.label}</span>
               </button>
@@ -697,8 +706,7 @@ function AiChat() {
             {/* Leaderboard Button */}
             <button
               onClick={handleViewAllRankings}
-              className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-zinc-400 hover:bg-zinc-700/50"
-            >
+              className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-zinc-400 hover:bg-zinc-700/50">
               <Trophy className="w-5 h-5" />
               <span className="font-medium">Leaderboard</span>
             </button>
@@ -711,8 +719,7 @@ function AiChat() {
                   item.active
                     ? "bg-gold text-zinc-900"
                     : "text-zinc-400 hover:bg-zinc-700/50"
-                }`}
-              >
+                }`}>
                 <item.icon className="w-5 h-5" />
                 <span className="font-medium">{item.label}</span>
               </button>
@@ -728,8 +735,7 @@ function AiChat() {
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => navigate("/")}
-                className="text-gold hover:text-gold/80 transition-colors"
-              >
+                className="text-gold hover:text-gold/80 transition-colors">
                 <ArrowLeft className="w-6 h-6" />
               </button>
               <div className="flex items-center space-x-2">
@@ -756,8 +762,7 @@ function AiChat() {
                       filtersExpanded
                         ? "bg-gold text-zinc-900 hover:bg-gold/90"
                         : "bg-zinc-800 text-zinc-200 hover:bg-zinc-700/80"
-                    }`}
-                  >
+                    }`}>
                     <Filter className="w-5 h-5" />
                     <span>Filters</span>
                     {filtersExpanded ? (
@@ -783,8 +788,7 @@ function AiChat() {
                           .map((tag) => (
                             <div
                               key={tag}
-                              className="flex items-center justify-between"
-                            >
+                              className="flex items-center justify-between">
                               <label className="flex items-center space-x-2">
                                 <input
                                   type="checkbox"
@@ -799,8 +803,7 @@ function AiChat() {
                               {selectedTags.includes(tag) && (
                                 <button
                                   onClick={() => toggleTag(tag)}
-                                  className="text-zinc-400 hover:text-gold"
-                                >
+                                  className="text-zinc-400 hover:text-gold">
                                   <Minus className="w-4 h-4" />
                                 </button>
                               )}
@@ -813,8 +816,7 @@ function AiChat() {
               )}
               <button
                 onClick={() => setShowPricingModal(true)}
-                className="flex items-center space-x-2 px-3 py-2 bg-gold text-zinc-900 rounded-lg hover:bg-gold/90 transition-colors font-medium"
-              >
+                className="flex items-center space-x-2 px-3 py-2 bg-gold text-zinc-900 rounded-lg hover:bg-gold/90 transition-colors font-medium">
                 <Crown className="w-5 h-5" />
                 <span>Upgrade</span>
               </button>
@@ -849,8 +851,7 @@ function AiChat() {
                       activeGenre === genre.id
                         ? "bg-gold text-zinc-900 font-medium"
                         : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
-                    }`}
-                  >
+                    }`}>
                     <div className="flex items-center space-x-2">
                       {genre.icon}
                       <span>{genre.name}</span>
@@ -868,8 +869,7 @@ function AiChat() {
                         <div key={genre.id} className="animate-fadeIn">
                           <div className="flex items-center mb-6">
                             <div
-                              className={`w-12 h-12 rounded-lg bg-gradient-to-br ${genre.bgColor} flex items-center justify-center mr-4`}
-                            >
+                              className={`w-12 h-12 rounded-lg bg-gradient-to-br ${genre.bgColor} flex items-center justify-center mr-4`}>
                               {genre.icon}
                             </div>
                             <div>
@@ -889,8 +889,7 @@ function AiChat() {
                                 <div
                                   key={slug}
                                   onClick={() => navigate(`/chat/${slug}`)}
-                                  className={`group relative bg-gradient-to-br ${genre.bgColor} rounded-xl overflow-hidden shadow-lg cursor-pointer hover:opacity-90 transition-all duration-300`}
-                                >
+                                  className={`group relative bg-gradient-to-br ${genre.bgColor} rounded-xl overflow-hidden shadow-lg cursor-pointer hover:opacity-90 transition-all duration-300`}>
                                   <div className="absolute top-3 left-3 z-10 bg-black/60 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center">
                                     {genre.icon}
                                     <span className="ml-1">
@@ -915,8 +914,7 @@ function AiChat() {
                                       favorites.includes(slug)
                                         ? "bg-gold/90 text-zinc-900"
                                         : "bg-black/40 text-white hover:bg-black/60"
-                                    }`}
-                                  >
+                                    }`}>
                                     <Star
                                       className="w-4 h-4"
                                       fill={
@@ -964,8 +962,7 @@ function AiChat() {
                     <div
                       key={genre.id}
                       onClick={() => handleGenreSelect(genre.id)}
-                      className={`bg-gradient-to-br ${genre.bgColor} p-6 rounded-xl cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg`}
-                    >
+                      className={`bg-gradient-to-br ${genre.bgColor} p-6 rounded-xl cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg`}>
                       <div className="flex items-center mb-4">
                         <div className="w-10 h-10 rounded-full bg-black/30 flex items-center justify-center mr-3">
                           {genre.icon}
@@ -983,8 +980,7 @@ function AiChat() {
                             <div
                               key={slug}
                               className="w-8 h-8 rounded-full border-2 border-white overflow-hidden"
-                              style={{ zIndex: 5 - index }}
-                            >
+                              style={{ zIndex: 5 - index }}>
                               <img
                                 src={character.image}
                                 alt={character.name}
@@ -995,8 +991,7 @@ function AiChat() {
                         {genre.slugs.length > 5 && (
                           <div
                             className="w-8 h-8 rounded-full border-2 border-white bg-black/70 flex items-center justify-center text-xs text-white font-bold"
-                            style={{ zIndex: 0 }}
-                          >
+                            style={{ zIndex: 0 }}>
                             +{genre.slugs.length - 5}
                           </div>
                         )}
@@ -1020,13 +1015,11 @@ function AiChat() {
                   {selectedTags.map((tag) => (
                     <div
                       key={tag}
-                      className="flex items-center space-x-1 px-3 py-1.5 bg-gold/20 text-gold rounded-lg text-sm"
-                    >
+                      className="flex items-center space-x-1 px-3 py-1.5 bg-gold/20 text-gold rounded-lg text-sm">
                       <span>{tag}</span>
                       <button
                         onClick={() => toggleTag(tag)}
-                        className="hover:text-gold/80 transition-colors"
-                      >
+                        className="hover:text-gold/80 transition-colors">
                         <X className="w-4 h-4" />
                       </button>
                     </div>
@@ -1060,8 +1053,7 @@ function AiChat() {
                         index === currentAnnouncementIndex
                           ? "opacity-100 z-20"
                           : "opacity-0 z-10"
-                      }`}
-                    >
+                      }`}>
                       {/* Background image with gradient overlay */}
                       <div className="absolute inset-0 w-full h-full">
                         <img
@@ -1098,8 +1090,7 @@ function AiChat() {
                                     navigate(announcement.ctaLink);
                                   }
                                 }}
-                                className="px-8 py-3 bg-gold hover:bg-gold/90 text-zinc-900 rounded font-bold text-lg transition-colors"
-                              >
+                                className="px-8 py-3 bg-gold hover:bg-gold/90 text-zinc-900 rounded font-bold text-lg transition-colors">
                                 {announcement.cta}
                               </button>
                             </div>
@@ -1125,8 +1116,7 @@ function AiChat() {
                         selectedTags.includes(tag)
                           ? "bg-gold text-zinc-900 font-medium"
                           : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
-                      }`}
-                    >
+                      }`}>
                       {tag} ({tagCounts[tag]})
                     </button>
                   ))}
@@ -1188,8 +1178,7 @@ function AiChat() {
                       <div
                         key={slug}
                         onClick={() => navigate(`/chat/${slug}`)}
-                        className="group relative bg-gradient-to-br from-red-900/30 to-amber-900/30 rounded-xl overflow-hidden shadow-lg cursor-pointer hover:from-red-900/40 hover:to-amber-900/40 transition-all duration-300"
-                      >
+                        className="group relative bg-gradient-to-br from-red-900/30 to-amber-900/30 rounded-xl overflow-hidden shadow-lg cursor-pointer hover:from-red-900/40 hover:to-amber-900/40 transition-all duration-300">
                         <div className="absolute top-3 left-3 z-10 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center">
                           <Zap className="w-3 h-3 mr-1" />
                           HOT
@@ -1212,8 +1201,7 @@ function AiChat() {
                             favorites.includes(slug)
                               ? "bg-gold/90 text-zinc-900"
                               : "bg-black/40 text-white hover:bg-black/60"
-                          }`}
-                        >
+                          }`}>
                           <Star
                             className="w-4 h-4"
                             fill={
@@ -1337,13 +1325,11 @@ function AiChat() {
                       {selectedTags.map((tag) => (
                         <div
                           key={tag}
-                          className="flex items-center space-x-1 px-3 py-1.5 bg-nexus-blue-500/20 text-nexus-blue-300 rounded-lg text-sm"
-                        >
+                          className="flex items-center space-x-1 px-3 py-1.5 bg-nexus-blue-500/20 text-nexus-blue-300 rounded-lg text-sm">
                           <span>{tag}</span>
                           <button
                             onClick={() => toggleTag(tag)}
-                            className="hover:text-nexus-blue-200 transition-colors"
-                          >
+                            className="hover:text-nexus-blue-200 transition-colors">
                             <X className="w-4 h-4" />
                           </button>
                         </div>
@@ -1351,8 +1337,7 @@ function AiChat() {
 
                       <button
                         onClick={() => setSelectedTags([])}
-                        className="px-3 py-1.5 bg-nexus-neutral-800 text-nexus-neutral-300 rounded-lg text-sm hover:bg-nexus-neutral-700"
-                      >
+                        className="px-3 py-1.5 bg-nexus-neutral-800 text-nexus-neutral-300 rounded-lg text-sm hover:bg-nexus-neutral-700">
                         Clear All
                       </button>
                     </div>
@@ -1434,8 +1419,7 @@ function AiChat() {
                       <div
                         key={slug}
                         onClick={() => navigate(`/chat/${slug}`)}
-                        className="bg-nexus-neutral-800/50 rounded-xl overflow-hidden group cursor-pointer hover:bg-nexus-neutral-700/50 transition-colors shadow-soft flex flex-col"
-                      >
+                        className="bg-nexus-neutral-800/50 rounded-xl overflow-hidden group cursor-pointer hover:bg-nexus-neutral-700/50 transition-colors shadow-soft flex flex-col">
                         {" "}
                         {/* <-- Added flex flex-col */}
                         <div className="relative aspect-square">
@@ -1446,8 +1430,7 @@ function AiChat() {
                               favorites.includes(slug)
                                 ? "bg-gold/90 text-zinc-900"
                                 : "bg-black/50 text-white hover:bg-black/70"
-                            }`}
-                          >
+                            }`}>
                             <Star
                               className="w-5 h-5"
                               fill={
@@ -1486,8 +1469,7 @@ function AiChat() {
                                 {character.tags.slice(0, 2).map((tag) => (
                                   <span
                                     key={tag}
-                                    className="px-2 py-0.5 bg-zinc-700/80 text-xs text-zinc-300 rounded-full"
-                                  >
+                                    className="px-2 py-0.5 bg-zinc-700/80 text-xs text-zinc-300 rounded-full">
                                     {tag}
                                   </span>
                                 ))}
@@ -1510,8 +1492,7 @@ function AiChat() {
                           <div className="flex items-center justify-between mb-4">
                             <button
                               onClick={(e) => handleLike(e, slug)}
-                              className="flex items-center space-x-1 text-zinc-400 hover:text-gold transition-colors"
-                            >
+                              className="flex items-center space-x-1 text-zinc-400 hover:text-gold transition-colors">
                               <Heart className="w-5 h-5" />
                               <span>{likes[slug]?.toLocaleString() || 0}</span>
                             </button>
@@ -1520,8 +1501,7 @@ function AiChat() {
                                 e.stopPropagation();
                                 // Share functionality
                               }}
-                              className="text-zinc-400 hover:text-gold transition-colors"
-                            >
+                              className="text-zinc-400 hover:text-gold transition-colors">
                               <Share2 className="w-5 h-5" />
                             </button>
                           </div>
@@ -1534,8 +1514,7 @@ function AiChat() {
                                 e.stopPropagation();
                                 navigate(`/chat/${slug}`);
                               }}
-                              className="flex items-center justify-center space-x-2 px-4 py-3 bg-gold text-zinc-900 rounded-lg hover:bg-gold/90 transition-all w-full duration-200 font-medium group"
-                            >
+                              className="flex items-center justify-center space-x-2 px-4 py-3 bg-gold text-zinc-900 rounded-lg hover:bg-gold/90 transition-all w-full duration-200 font-medium group">
                               <MessageSquare className="w-5 h-5 transition-transform group-hover:scale-110" />
                               <span>Chat Now</span>
                             </button>
@@ -1572,8 +1551,7 @@ function AiChat() {
                   </p>
                   <button
                     onClick={() => setShowFavorites(false)}
-                    className="px-6 py-3 bg-gold text-zinc-900 rounded-lg hover:bg-gold/90 transition-all font-medium"
-                  >
+                    className="px-6 py-3 bg-gold text-zinc-900 rounded-lg hover:bg-gold/90 transition-all font-medium">
                     Browse Characters
                   </button>
                 </div>
@@ -1585,14 +1563,12 @@ function AiChat() {
                       <div
                         key={slug}
                         onClick={() => navigate(`/chat/${slug}`)}
-                        className="bg-zinc-800/50 rounded-xl overflow-hidden group cursor-pointer hover:bg-zinc-700/50 transition-colors shadow-lg"
-                      >
+                        className="bg-zinc-800/50 rounded-xl overflow-hidden group cursor-pointer hover:bg-zinc-700/50 transition-colors shadow-lg">
                         <div className="relative aspect-square">
                           {/* Favorite Button */}
                           <button
                             onClick={(e) => toggleFavorite(e, slug)}
-                            className="absolute top-3 right-3 z-10 p-2 rounded-full backdrop-blur-sm transition-all duration-200 bg-gold/90 text-zinc-900"
-                          >
+                            className="absolute top-3 right-3 z-10 p-2 rounded-full backdrop-blur-sm transition-all duration-200 bg-gold/90 text-zinc-900">
                             <Star className="w-5 h-5" fill="currentColor" />
                           </button>
 
@@ -1624,8 +1600,7 @@ function AiChat() {
                                 {character.tags.slice(0, 3).map((tag) => (
                                   <span
                                     key={tag}
-                                    className="px-2 py-0.5 bg-zinc-700/80 text-xs text-zinc-300 rounded-full"
-                                  >
+                                    className="px-2 py-0.5 bg-zinc-700/80 text-xs text-zinc-300 rounded-full">
                                     {tag}
                                   </span>
                                 ))}
@@ -1645,8 +1620,7 @@ function AiChat() {
                           <div className="flex items-center justify-between mb-4">
                             <button
                               onClick={(e) => handleLike(e, slug)}
-                              className="flex items-center space-x-1 text-zinc-400 hover:text-gold transition-colors"
-                            >
+                              className="flex items-center space-x-1 text-zinc-400 hover:text-gold transition-colors">
                               <Heart className="w-5 h-5" />
                               <span>{likes[slug]?.toLocaleString() || 0}</span>
                             </button>
@@ -1655,8 +1629,7 @@ function AiChat() {
                                 e.stopPropagation();
                                 // Share functionality would go here
                               }}
-                              className="text-zinc-400 hover:text-gold transition-colors"
-                            >
+                              className="text-zinc-400 hover:text-gold transition-colors">
                               <Share2 className="w-5 h-5" />
                             </button>
                           </div>
@@ -1666,8 +1639,7 @@ function AiChat() {
                                 e.stopPropagation();
                                 navigate(`/chat/${slug}`);
                               }}
-                              className="flex-1 flex items-center justify-center space-x-2 px-4 py-3 bg-gold text-zinc-900 rounded-lg hover:bg-gold/90 transition-all duration-200 font-medium group"
-                            >
+                              className="flex-1 flex items-center justify-center space-x-2 px-4 py-3 bg-gold text-zinc-900 rounded-lg hover:bg-gold/90 transition-all duration-200 font-medium group">
                               <MessageSquare className="w-5 h-5 transition-transform group-hover:scale-110" />
                               <span>Chat Now</span>
                             </button>
@@ -1691,8 +1663,7 @@ function AiChat() {
           onClick={() => {
             // Support bot functionality will go here
             alert("Support bot coming soon!");
-          }}
-        >
+          }}>
           <SupportBotIcon size="lg" />
 
           {/* Tooltip */}

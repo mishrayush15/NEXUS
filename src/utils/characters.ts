@@ -1,3 +1,6 @@
+// src/utils/characters.ts
+import axios from "axios";
+
 export interface Character {
   id: number;
   name: string;
@@ -27,8 +30,28 @@ export interface Character {
   };
 }
 
-import { animeCharacters } from './animeCharacters';
+// Convert character name to slug for object key
+const toSlug = (name: string): string => {
+  return name.toLowerCase().replace(/\s+/g, "-");
+};
 
-export const characters: Record<string, Character> = animeCharacters;
+// Function to fetch and return as Record<string, Character>
+export const loadCharacters = async (): Promise<Record<string, Character>> => {
+  try {
+    const response = await axios.get<Character[]>(
+      "http://localhost:8000/api/v1/chat/models"
+    );
+    const charactersArray = response.data;
 
+    const characters: Record<string, Character> = {};
+    for (const character of charactersArray) {
+      const slug = toSlug(character.name);
+      characters[slug] = character;
+    }
 
+    return characters;
+  } catch (err) {
+    console.error("Failed to load characters from API", err);
+    return {};
+  }
+};
