@@ -21,9 +21,10 @@ import {
   Mic,
   MicOff,
 } from "lucide-react";
-import { characters } from "../utils/characters";
+import { useCharacterContext } from "../contexts/CharacterContext";
 import { themes } from "../utils/themes";
 import { incrementView } from "../utils/viewsManager";
+import FullPageLoader from "../components/FullPageLoader";
 
 // Define SpeechRecognition types
 interface SpeechRecognitionResult {
@@ -68,6 +69,7 @@ declare global {
 
 function CharacterChat() {
   const { characterId } = useParams<{ characterId: string }>();
+  const { characters, loading: loadingCharacters } = useCharacterContext();
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const [showInfo, setShowInfo] = useState(true);
@@ -168,10 +170,11 @@ function CharacterChat() {
     setIsLoading(true);
 
     // Call the backend API using axios
-    axios.post('http://localhost:8000/api/v1/chat/ai/gemini', {
-      question: text,
-      modelName: characterId
-    })
+    axios
+      .post("http://localhost:8000/api/v1/chat/ai/gemini", {
+        question: text,
+        modelName: characterId,
+      })
       .then((response) => {
         // Extract the answer field from the response data
         const aiResponse = response.data.answer || response.data;
@@ -347,13 +350,19 @@ function CharacterChat() {
           setIsLoading(true);
 
           try {
-            const response = await axios.post('http://localhost:3000/api/v1/chat/ai/gemini', {
-              question: autoMessage,
-              modelName: characterId
-            });
+            const response = await axios.post(
+              "http://localhost:3000/api/v1/chat/ai/gemini",
+              {
+                question: autoMessage,
+                modelName: characterId,
+              }
+            );
             // Extract the answer field from the response data
             const aiResponse = response.data.answer || response.data;
-            setMessages((prev) => [...prev, { text: aiResponse, sender: "ai" }]);
+            setMessages((prev) => [
+              ...prev,
+              { text: aiResponse, sender: "ai" },
+            ]);
           } catch (error) {
             console.error("Failed to get AI response:", error);
             setMessages((prev) => [
@@ -540,6 +549,10 @@ function CharacterChat() {
       "--gradient-surface": selectedTheme.gradients?.surface,
     } as React.CSSProperties;
   };
+
+  if (loadingCharacters) {
+    return <FullPageLoader />;
+  }
 
   return (
     <div
