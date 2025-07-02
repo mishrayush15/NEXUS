@@ -20,28 +20,18 @@ import {
   Heart,
   Repeat,
   Share2,
-  Sparkles,
-  Zap,
-  Flame,
   Activity,
   Star,
-  Clock,
-  Code,
-  Music,
-  UserCircle,
-  ThumbsUp,
-  ThumbsDown,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
-import { MainNavbar } from "../components/MainNavbar";
 import { FeatureNavigation } from "../components/FeatureNavigation";
 import { CreateGroup } from "../components/CreateGroup";
-import { FilterDropdown } from "../components/FilterDropdown";
-
-import { ChatRoom, ChatMessage } from "../types/chat";
-import { sampleGroups } from "../data/groupsData";
 import TrendingGroupsList from "../components/TrendingGroupsList";
 import GroupsList from "../components/GroupsList";
-
+import Header from "../components/VibeHeader";
+import { ChatRoom, ChatMessage } from "../types/chat";
+import { sampleGroups } from "../data/groupsData";
 // Placeholder avatar data
 const avatars = [
   "https://i.pravatar.cc/150?img=1",
@@ -82,6 +72,10 @@ export default function NexusVibe() {
   const [showAliasInput, setShowAliasInput] = useState(false);
   const [darkRoomAlias, setDarkRoomAlias] = useState("");
   const [inDarkRoom, setInDarkRoom] = useState(false);
+
+  // Collaps
+  const [channelsCollapsed, setChannelsCollapsed] = useState(false);
+  const [groupsJoinedCollapsed, setGroupsJoinedCollapsed] = useState(false);
 
   // Add anonymous groups data near other state declarations
   const [anonymousGroups, setAnonymousGroups] = useState([
@@ -623,80 +617,8 @@ export default function NexusVibe() {
       default:
         return (
           <>
-            {/* Hero section with eye-catching visuals and engagement metrics */}
-            <div className="relative mb-10 bg-zinc-800/40 rounded-2xl border border-zinc-700/50 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-gold/10 via-gold/5 to-transparent"></div>
-              <div className="relative z-10 p-6 md:p-8">
-                <div className="flex flex-col md:flex-row items-start md:items-center">
-                  <div className="md:mr-8">
-                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                      Welcome to{" "}
-                      <span className="bg-gradient-to-r from-amber-200 to-yellow-500 bg-clip-text text-transparent font-extrabold text-3xl md:text-4xl">
-                        Nexus Vibe
-                      </span>
-                    </h2>
-                    <p className="text-zinc-400 md:text-lg mb-6 max-w-xl">
-                      Connect with communities that share your interests, join
-                      conversations, and make new connections in real-time.
-                    </p>
-
-                    <div className="flex flex-wrap gap-3">
-                      <button
-                        onClick={() => setIsCreateGroupOpen(true)}
-                        className="px-4 py-2 bg-gold hover:bg-gold/90 rounded-lg text-zinc-900 font-medium transition-colors flex items-center space-x-2">
-                        <Plus className="w-5 h-5" />
-                        <span>Create Group</span>
-                      </button>
-
-                      <button
-                        onClick={() => setShowPopularGroups(!showPopularGroups)}
-                        className="px-4 py-2 bg-zinc-700/50 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-white transition-colors flex items-center space-x-2">
-                        <Star className="w-5 h-5 text-gold" />
-                        <span>Popular Groups</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="hidden md:block ml-auto">
-                    <div className="grid grid-cols-3 gap-3 mt-4 md:mt-0">
-                      <div className="bg-zinc-800/80 backdrop-blur-sm p-3 rounded-xl border border-zinc-700">
-                        <div className="text-3xl font-bold text-gold">
-                          {groups.length}
-                        </div>
-                        <div className="text-xs text-zinc-400">
-                          Total Groups
-                        </div>
-                      </div>
-                      <div className="bg-zinc-800/80 backdrop-blur-sm p-3 rounded-xl border border-zinc-700">
-                        <div className="text-3xl font-bold text-gold">
-                          {groups.reduce(
-                            (sum, group) => sum + group.members,
-                            0
-                          )}
-                        </div>
-                        <div className="text-xs text-zinc-400">
-                          Community Members
-                        </div>
-                      </div>
-                      <div className="bg-zinc-800/80 backdrop-blur-sm p-3 rounded-xl border border-zinc-700">
-                        <div className="text-3xl font-bold text-gold">
-                          {groups.reduce(
-                            (sum, group) => sum + group.messages.length,
-                            0
-                          )}
-                        </div>
-                        <div className="text-xs text-zinc-400">
-                          Conversations
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* Search section without filters */}
-            <div className="sticky top-0 z-20 pt-2 pb-4 bg-zinc-900 border-b border-zinc-800">
+            {/* <div className="sticky top-0 z-20 pt-2 pb-4 bg-zinc-900 border-b border-zinc-800">
               <div className="flex items-center space-x-4 mb-4">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-zinc-500" />
@@ -715,7 +637,13 @@ export default function NexusVibe() {
                   <span>Create Group</span>
                 </button>
               </div>
-            </div>
+            </div> */}
+
+            <Header
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              setIsCreateGroupOpen={setIsCreateGroupOpen}
+            />
 
             {showPopularGroups && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/80 backdrop-blur-sm">
@@ -852,8 +780,6 @@ export default function NexusVibe() {
 
   return (
     <div className="flex flex-col h-screen bg-zinc-900 text-white overflow-x-hidden">
-      <MainNavbar />
-
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar - Channel List */}
         <div className="w-64 bg-zinc-900 border-r border-zinc-800 flex flex-col">
@@ -929,41 +855,110 @@ export default function NexusVibe() {
           {/* Groups/Channels (Discord style) */}
           <div className="mt-4 p-4 border-t border-zinc-800 flex-1 overflow-y-auto">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-zinc-500">GROUPS</h3>
-              <button
-                onClick={() => setIsCreateGroupOpen(true)}
-                className="p-1 text-zinc-500 hover:text-zinc-300">
-                <Plus className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="space-y-0.5">
-              {groups.map((group) => (
+              <h3 className="text-sm font-medium text-zinc-500">
+                Channels Joined
+              </h3>
+              <div className="flex items-center space-x-2">
                 <button
-                  key={group.id}
-                  onClick={() => {
-                    setSelectedGroup(group);
-                    navigate(`/nexus-vibe/${group.id}`);
-                  }}
-                  className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${
-                    selectedGroup?.id === group.id
-                      ? "bg-gold/20 text-gold"
-                      : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
-                  }`}>
-                  <MessageSquare className="w-4 h-4 flex-shrink-0" />
-                  <span className="truncate">{group.name}</span>
-                  {group.messages.length > 0 && (
-                    <span className="ml-auto bg-gold/90 text-zinc-900 rounded-full text-xs px-1.5 min-w-[1.25rem] flex justify-center">
-                      {group.messages.length}
-                    </span>
+                  onClick={() => setChannelsCollapsed((prev) => !prev)}
+                  className="p-1 text-zinc-500 hover:text-zinc-300"
+                  title={channelsCollapsed ? "Expand" : "Collapse"}>
+                  {channelsCollapsed ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
                   )}
                 </button>
-              ))}
+                <button
+                  onClick={() => setIsCreateGroupOpen(true)}
+                  className="p-1 text-zinc-500 hover:text-zinc-300"
+                  title="Create Group">
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
             </div>
+
+            {!channelsCollapsed && (
+              <div className="space-y-0.5">
+                {groups.map((group) => (
+                  <button
+                    key={group.id}
+                    onClick={() => {
+                      setSelectedGroup(group);
+                      navigate(`/nexus-vibe/${group.id}`);
+                    }}
+                    className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                      selectedGroup?.id === group.id
+                        ? "bg-gold/20 text-gold"
+                        : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                    }`}>
+                    <MessageSquare className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">{group.name}</span>
+                    {group.messages.length > 0 && (
+                      <span className="ml-auto bg-gold/90 text-zinc-900 rounded-full text-xs px-1.5 min-w-[1.25rem] flex justify-center">
+                        {group.messages.length}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="mt-4 p-4 border-t border-zinc-800 flex-1 overflow-y-auto">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-medium text-zinc-500">
+                Groups Joined
+              </h3>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setGroupsJoinedCollapsed((prev) => !prev)}
+                  className="p-1 text-zinc-500 hover:text-zinc-300"
+                  title={groupsJoinedCollapsed ? "Expand" : "Collapse"}>
+                  {groupsJoinedCollapsed ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
+                  )}
+                </button>
+                <button
+                  onClick={() => setIsCreateGroupOpen(true)}
+                  className="p-1 text-zinc-500 hover:text-zinc-300"
+                  title="Create Group">
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {!groupsJoinedCollapsed && (
+              <div className="space-y-0.5">
+                {groups.map((group) => (
+                  <button
+                    key={group.id}
+                    onClick={() => {
+                      setSelectedGroup(group);
+                      navigate(`/nexus-vibe/${group.id}`);
+                    }}
+                    className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                      selectedGroup?.id === group.id
+                        ? "bg-gold/20 text-gold"
+                        : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                    }`}>
+                    <MessageSquare className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">{group.name}</span>
+                    {group.messages.length > 0 && (
+                      <span className="ml-auto bg-gold/90 text-zinc-900 rounded-full text-xs px-1.5 min-w-[1.25rem] flex justify-center">
+                        {group.messages.length}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Main Content - Chat Area */}
-        <div className="flex-1 flex flex-col overflow-hidden max-w-7xl w-full mx-auto">
+        <div className="flex-1 flex flex-col overflow-hidden w-full mx-auto">
           {selectedGroup ? (
             <>
               {/* Group Header */}
@@ -1141,7 +1136,13 @@ export default function NexusVibe() {
               </div>
             </>
           ) : (
-            <div className="p-6 overflow-y-auto">
+            //
+            ///
+            ///
+            ///
+            ///
+            ////
+            <div className="pt-0 px-5 pb-5 overflow-y-auto">
               {currentView !== "home" && (
                 <h1 className="text-2xl font-bold text-white mb-2">
                   {currentView === "trending" && "Trending Groups"}
@@ -1149,17 +1150,6 @@ export default function NexusVibe() {
                   {currentView === "campus" && "Campus Connect"}
                 </h1>
               )}
-              <p className="text-zinc-400 mb-4">
-                {currentView !== "home" && (
-                  <>
-                    {currentView === "trending" && "Popular and active groups"}
-                    {currentView === "darkroom" && ""}
-                    {currentView === "campus" &&
-                      "Connect with your academic community"}
-                  </>
-                )}
-              </p>
-
               {renderVibeView()}
             </div>
           )}

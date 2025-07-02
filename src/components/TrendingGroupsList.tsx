@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { TrendingUp, Users, MessageSquare } from "lucide-react";
 import { ChatRoom } from "../types/chat";

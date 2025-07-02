@@ -1,12 +1,14 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChatRoom } from "../types/chat";
 import {
   MessageSquare,
   Users,
-  Activity,
+  Clock,
+  ChevronLeft,
+  ChevronRight,
   Sparkles,
   Flame,
-  Clock,
 } from "lucide-react";
 
 interface GroupsListProps {
@@ -15,18 +17,179 @@ interface GroupsListProps {
   avatars: string[];
 }
 
+function TrendingTag({ trending }: { trending: number }) {
+  let label = "";
+  let bgColor = "";
+
+  if (trending > 7) {
+    label = "HOT";
+    bgColor = "bg-red-500";
+  } else if (trending > 3) {
+    label = "ACTIVE";
+    bgColor = "bg-yellow-400";
+  } else {
+    label = "CHILL";
+    bgColor = "bg-blue-400";
+  }
+
+  return (
+    <div className="absolute top-0 right-0 w-16 h-16 overflow-hidden z-10">
+      <div
+        className={`absolute rotate-45 ${bgColor} text-xs font-bold py-1 text-white text-center w-24 top-3 right-[-6px]`}>
+        {label}
+      </div>
+    </div>
+  );
+}
+
+function GroupSection({
+  title,
+  groups,
+  page,
+  setPage,
+  groupsPerPage,
+  totalPages,
+  setSelectedGroup,
+  avatars,
+}: {
+  title: string;
+  groups: ChatRoom[];
+  page: number;
+  setPage: (page: number) => void;
+  groupsPerPage: number;
+  totalPages: number;
+  setSelectedGroup: (group: ChatRoom) => void;
+  avatars: string[];
+}) {
+  const navigate = useNavigate();
+  const paginatedGroups = groups.slice(
+    page * groupsPerPage,
+    (page + 1) * groupsPerPage
+  );
+
+  const getTitleColor = (title: string) => {
+    if (title === "HOT CHANNELS") return "text-red-400";
+    if (title === "ACTIVE CHANNELS") return "text-yellow-400";
+    if (title === "CHILL CHANNELS") return "text-blue-400";
+    return "text-white";
+  };
+
+  return (
+    <>
+      <div className="flex items-center justify-center my-6">
+        <div className="border-t border-zinc-700 flex-grow mr-4"></div>
+        <h2 className={`text-lg font-semibold ${getTitleColor(title)}`}>
+          {title}
+        </h2>
+        <div className="border-t border-zinc-700 flex-grow ml-4"></div>
+      </div>
+
+      <div className="relative">
+        <button
+          onClick={() => setPage(Math.max(page - 1, 0))}
+          disabled={page === 0}
+          className="absolute left-[-24px] top-1/2 -translate-y-1/2 z-10 bg-zinc-700 hover:bg-zinc-600 text-white p-2 rounded-full disabled:opacity-30">
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+          {paginatedGroups.map((group) => (
+            <div
+              key={group.id}
+              className="relative h-[260px] perspective-1000 group">
+              <div className="relative w-full h-full transition-transform duration-700 preserve-3d group-hover:rotate-y-180">
+                {/* FRONT FACE */}
+                <div className="absolute w-full h-full backface-hidden bg-zinc-800/70 rounded-xl border border-zinc-700/50 p-6 flex flex-col items-center justify-center text-center">
+                  <TrendingTag trending={group.trending || 0} />
+                  <div className="w-16 h-16 rounded-full bg-gold/30 border border-gold/20 flex items-center justify-center mb-4">
+                    <span className="text-2xl font-bold text-gold">
+                      {group.name.charAt(0)}
+                    </span>
+                  </div>
+                  <h3 className="text-white font-semibold text-lg mb-2">
+                    {group.name}
+                  </h3>
+                  <p className="text-sm text-zinc-400 line-clamp-2">
+                    {group.description}
+                  </p>
+                </div>
+
+                {/* BACK FACE */}
+                <div className="absolute w-full h-full backface-hidden bg-zinc-900/80 backdrop-blur-sm rounded-xl border border-zinc-700/50 p-6 flex flex-col items-center justify-center text-center space-y-3 transform rotate-y-180">
+                  <div>
+                    <span className="text-xs text-zinc-400">Total Members</span>
+                    <div className="text-base text-white font-medium">
+                      {group.members}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-xs text-zinc-400">Category</span>
+                    <div className="text-base text-white font-medium">
+                      {group.category || "General"}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-xs text-zinc-400">Time Spent</span>
+                    <div className="text-base text-white font-medium">
+                      {group.timeSpent || "12h+"}
+                    </div>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedGroup(group);
+                      navigate(`/nexus-vibe/${group.id}`);
+                    }}
+                    className="mt-2 bg-gold hover:bg-gold/90 text-zinc-900 font-medium px-4 py-2 rounded-lg transition-transform scale-95 hover:scale-100">
+                    Join Group
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={() => setPage(Math.min(page + 1, totalPages - 1))}
+          disabled={page >= totalPages - 1}
+          className="absolute right-[-24px] top-1/2 -translate-y-1/2 z-10 bg-zinc-700 hover:bg-zinc-600 text-white p-2 rounded-full disabled:opacity-30">
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      </div>
+    </>
+  );
+}
+
 export default function GroupsList({
   filteredGroups,
   setSelectedGroup,
   avatars,
 }: GroupsListProps) {
-  const navigate = useNavigate();
+  const hotGroups = filteredGroups
+    .slice(1)
+    .filter((g) => (g.trending || 0) > 7);
+  const activeGroups = filteredGroups
+    .slice(1)
+    .filter((g) => (g.trending || 0) <= 7 && (g.trending || 0) > 3);
+  const chillGroups = filteredGroups
+    .slice(1)
+    .filter((g) => (g.trending || 0) <= 3);
 
-  if (!filteredGroups.length) return null;
+  const hotGroupsPerPage = 6;
+  const activeGroupsPerPage = 6;
+  const chillGroupsPerPage = 6;
+
+  const [hotPage, setHotPage] = useState(0);
+  const [activePage, setActivePage] = useState(0);
+  const [chillPage, setChillPage] = useState(0);
+
+  const totalHotPages = Math.ceil(hotGroups.length / hotGroupsPerPage);
+  const totalActivePages = Math.ceil(activeGroups.length / activeGroupsPerPage);
+  const totalChillPages = Math.ceil(chillGroups.length / chillGroupsPerPage);
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-6 mt-6">
-      {/* Featured group */}
       <div className="mb-8 bg-zinc-800/60 rounded-2xl overflow-hidden border border-gold/10 shadow-lg shadow-gold/5 transform hover:scale-[1.01] transition-all duration-300">
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-gold/20 to-gold/5 mix-blend-overlay"></div>
@@ -103,82 +266,36 @@ export default function GroupsList({
         </div>
       </div>
 
-      {/* Remaining groups */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-        {filteredGroups.slice(1).map((group) => (
-          <div
-            key={group.id}
-            onClick={() => {
-              setSelectedGroup(group);
-              navigate(`/nexus-vibe/${group.id}`);
-            }}
-            className="relative bg-zinc-800/70 rounded-xl overflow-hidden cursor-pointer border border-zinc-700/50 hover:border-gold/20 transition-all duration-300 flex flex-col group">
-            {(group.trending || 0) > 7 && (
-              <div className="absolute top-0 right-0 w-16 h-16 overflow-hidden">
-                <div className="absolute rotate-45 bg-gold text-xs font-bold py-1 text-zinc-900 text-center w-24 top-3 right-[-6px]">
-                  HOT
-                </div>
-              </div>
-            )}
-            <div className="p-4 flex-1">
-              <div className="flex items-start">
-                <div className="w-10 h-10 rounded-lg bg-gold/30 flex items-center justify-center mr-3 border border-gold/20 flex-shrink-0">
-                  <span className="font-semibold text-gold">
-                    {group.name.charAt(0)}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold text-lg group-hover:text-gold transition-colors">
-                    {group.name}
-                  </h3>
-                  <p className="text-sm text-zinc-400 line-clamp-2 mt-1 mb-3">
-                    {group.description}
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2 mb-3">
-                <span className="text-xs text-zinc-300 bg-zinc-700/60 px-2 py-0.5 rounded-full flex items-center">
-                  <Users className="w-3 h-3 mr-1" />
-                  {group.members}
-                </span>
-                <span className="text-xs text-zinc-300 bg-zinc-700/60 px-2 py-0.5 rounded-full flex items-center">
-                  <Activity className="w-3 h-3 mr-1" />
-                  {Math.floor(Math.random() * 10) + 1} active now
-                </span>
-              </div>
-              <div className="flex items-center justify-between mt-auto pt-2 border-t border-zinc-700/50">
-                <div className="flex -space-x-2">
-                  {group.messages.slice(0, 3).map((message, idx) => (
-                    <div
-                      key={`avatar-${idx}`}
-                      className="w-6 h-6 rounded-full overflow-hidden ring-2 ring-zinc-800">
-                      <img
-                        src={message.avatar || avatars[idx % avatars.length]}
-                        alt=""
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ))}
-                  {group.messages.length > 3 && (
-                    <div className="w-6 h-6 rounded-full bg-zinc-700 flex items-center justify-center text-xs text-zinc-300 ring-2 ring-zinc-800">
-                      +{group.messages.length - 3}
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center text-xs text-zinc-500">
-                  <Clock className="w-3 h-3 mr-1" />
-                  <span>Active {Math.floor(Math.random() * 24) + 1}h ago</span>
-                </div>
-              </div>
-            </div>
-            <div className="absolute inset-0 bg-zinc-900/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <button className="bg-gold hover:bg-gold/90 text-zinc-900 font-medium px-4 py-2 rounded-lg transition-colors transform scale-95 group-hover:scale-100">
-                Join Group
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+      <GroupSection
+        title="HOT CHANNELS"
+        groups={hotGroups}
+        page={hotPage}
+        setPage={setHotPage}
+        groupsPerPage={hotGroupsPerPage}
+        totalPages={totalHotPages}
+        setSelectedGroup={setSelectedGroup}
+        avatars={avatars}
+      />
+      <GroupSection
+        title="ACTIVE CHANNELS"
+        groups={activeGroups}
+        page={activePage}
+        setPage={setActivePage}
+        groupsPerPage={activeGroupsPerPage}
+        totalPages={totalActivePages}
+        setSelectedGroup={setSelectedGroup}
+        avatars={avatars}
+      />
+      <GroupSection
+        title="CHILL CHANNELS"
+        groups={chillGroups}
+        page={chillPage}
+        setPage={setChillPage}
+        groupsPerPage={chillGroupsPerPage}
+        totalPages={totalChillPages}
+        setSelectedGroup={setSelectedGroup}
+        avatars={avatars}
+      />
     </div>
   );
 }
