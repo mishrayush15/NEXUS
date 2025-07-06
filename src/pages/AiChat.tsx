@@ -1420,19 +1420,16 @@ function AiChat() {
                         key={slug}
                         onClick={() => navigate(`/chat/${slug}`)}
                         className="bg-nexus-neutral-800/50 rounded-xl overflow-hidden group cursor-pointer hover:bg-nexus-neutral-700/50 transition-colors shadow-soft flex flex-col">
-                        {" "}
-                        {/* <-- Added flex flex-col */}
-                        <div className="relative aspect-square">
-                          {/* Favorite Button */}
+                        <div className="relative h-80">
                           <button
                             onClick={(e) => toggleFavorite(e, slug)}
-                            className={`absolute top-3 right-3 z-10 p-2 rounded-full backdrop-blur-sm transition-all duration-200 ${
+                            className={`absolute top-2 right-2 z-10 p-1.5 rounded-full backdrop-blur-sm transition-all ${
                               favorites.includes(slug)
                                 ? "bg-gold/90 text-zinc-900"
                                 : "bg-black/50 text-white hover:bg-black/70"
                             }`}>
                             <Star
-                              className="w-5 h-5"
+                              className="w-4 h-4"
                               fill={
                                 favorites.includes(slug)
                                   ? "currentColor"
@@ -1448,74 +1445,45 @@ function AiChat() {
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/90 to-transparent" />
 
-                          {/* Stats */}
-                          <div className="absolute top-3 left-3 flex items-center space-x-2 text-white text-sm">
-                            <div className="px-2 py-1 bg-black/50 backdrop-blur-sm rounded-full">
-                              {views[slug]?.toLocaleString() || 0} views
-                            </div>
-                          </div>
-
-                          <div className="absolute bottom-4 left-4 right-4">
-                            <h3 className="text-xl font-bold text-white mb-1">
+                          <div className="absolute bottom-3 left-3 right-3">
+                            <h3 className="text-lg font-bold text-white">
                               {character.name}
                             </h3>
-                            <p className="text-gold text-sm">
+                            <p className="text-gold text-xs">
                               {character.role}
                             </p>
-
-                            {/* Tags */}
-                            {character.tags && character.tags.length > 0 && (
-                              <div className="flex flex-wrap gap-1 mt-2">
-                                {character.tags.slice(0, 2).map((tag) => (
-                                  <span
-                                    key={tag}
-                                    className="px-2 py-0.5 bg-zinc-700/80 text-xs text-zinc-300 rounded-full">
-                                    {tag}
-                                  </span>
-                                ))}
-                                {character.tags.length > 2 && (
-                                  <span className="px-2 py-0.5 bg-zinc-700/80 text-xs text-zinc-300 rounded-full">
-                                    +{character.tags.length - 2}
-                                  </span>
-                                )}
-                              </div>
-                            )}
                           </div>
                         </div>
-                        {/* CONTENT SECTION — make it grow */}
-                        <div className="p-4 flex flex-col flex-grow">
-                          {" "}
-                          {/* <-- Added flex-grow */}
-                          <p className="text-zinc-400 text-sm mb-4">
+
+                        <div className="p-3 flex flex-col flex-grow">
+                          <p className="text-zinc-400 text-sm mb-2 line-clamp-2">
                             {character.description}
                           </p>
-                          <div className="flex items-center justify-between mb-4">
+
+                          <div className="flex items-center justify-between mb-2">
                             <button
                               onClick={(e) => handleLike(e, slug)}
                               className="flex items-center space-x-1 text-zinc-400 hover:text-gold transition-colors">
-                              <Heart className="w-5 h-5" />
-                              <span>{likes[slug]?.toLocaleString() || 0}</span>
+                              <Heart className="w-4 h-4" />
+                              <span className="text-xs">
+                                {likes[slug]?.toLocaleString() || 0}
+                              </span>
                             </button>
                             <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                // Share functionality
-                              }}
+                              onClick={(e) => e.stopPropagation()}
                               className="text-zinc-400 hover:text-gold transition-colors">
-                              <Share2 className="w-5 h-5" />
+                              <Share2 className="w-4 h-4" />
                             </button>
                           </div>
-                          {/* Push Chat Button to Bottom */}
-                          <div className="mt-auto pt-2">
-                            {" "}
-                            {/* <-- mt-auto pushes to bottom */}
+
+                          <div className="mt-auto pt-1">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 navigate(`/chat/${slug}`);
                               }}
-                              className="flex items-center justify-center space-x-2 px-4 py-3 bg-gold text-zinc-900 rounded-lg hover:bg-gold/90 transition-all w-full duration-200 font-medium group">
-                              <MessageSquare className="w-5 h-5 transition-transform group-hover:scale-110" />
+                              className="flex items-center justify-center space-x-2 px-3 py-2 bg-gold text-zinc-900 rounded-lg hover:bg-gold/90 transition-all w-full duration-200 text-sm">
+                              <MessageSquare className="w-4 h-4" />
                               <span>Chat Now</span>
                             </button>
                           </div>
