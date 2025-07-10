@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, Bot, Sparkles, Check, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCharacterContext } from "../contexts/CharacterContext";

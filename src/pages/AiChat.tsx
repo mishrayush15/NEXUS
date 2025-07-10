@@ -339,7 +339,7 @@ function AiChat() {
         navigate("/my-chats");
         break;
       case "Home":
-        navigate("/");
+        navigate("/ai");
         break;
       case "Create Buddy":
         navigate("/create-buddy");

@@ -10,9 +10,9 @@ import { SettingsProvider } from "./contexts/SettingsContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CompanionProvider } from "./contexts/CompanionContext";
 import { CharacterProvider } from "./contexts/CharacterContext";
-import { ChatProvider } from "./contexts/ChatContext";
+// import { ChatProvider } from "./contexts/ChatContext";
 import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import Register from "./pages/Register";
 import SetupProfile from "./pages/SetupProfile";
 import AISettings from "./pages/AISettings";
 import Showdown from "./pages/Showdown";
@@ -36,34 +36,34 @@ function App() {
   return (
     <SettingsProvider>
       <AuthProvider>
-        <ChatProvider>
-          <CompanionProvider>
-            <CharacterProvider>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/setup-profile" element={<SetupProfile />} />
-                <Route path="/" element={<Home />} />
-                <Route path="/ai" element={<AiChat />} />
-                <Route path="/create-buddy" element={<AISettings />} />
-                <Route path="/companion" element={<Companion />} />
-                <Route path="/showdown" element={<Showdown />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/chat/:characterId" element={<CharacterChat />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route
-                  path="/upgrade/payment"
-                  element={<PaymentGatewayWrapper />}
-                />
-                <Route path="/group-chats" element={<GroupChat />} />
-                <Route path="/group-chat/:groupId" element={<GroupChat />} />
-                <Route path="/nexus-vibe" element={<NexusVibe />} />
-                <Route path="/nexus-vibe/:groupId" element={<NexusVibe />} />
-                <Route path="/my-chats" element={<MyChats />} />
-              </Routes>
-            </CharacterProvider>
-          </CompanionProvider>
-        </ChatProvider>
+        {/* <ChatProvider> */}
+        <CompanionProvider>
+          <CharacterProvider>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/setup-profile" element={<SetupProfile />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/ai" element={<AiChat />} />
+              <Route path="/create-buddy" element={<AISettings />} />
+              <Route path="/companion" element={<Companion />} />
+              <Route path="/showdown" element={<Showdown />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/chat/:characterId" element={<CharacterChat />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route
+                path="/upgrade/payment"
+                element={<PaymentGatewayWrapper />}
+              />
+              <Route path="/group-chats" element={<GroupChat />} />
+              <Route path="/group-chat/:groupId" element={<GroupChat />} />
+              <Route path="/nexus-vibe" element={<NexusVibe />} />
+              <Route path="/nexus-vibe/:groupId" element={<NexusVibe />} />
+              <Route path="/my-chats" element={<MyChats />} />
+            </Routes>
+          </CharacterProvider>
+        </CompanionProvider>
+        {/* </ChatProvider> */}
       </AuthProvider>
     </SettingsProvider>
   );

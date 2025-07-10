@@ -1,21 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  doSignInWithEmailAndPassword,
+  doCreateUserWithEmailAndPassword,
   doSignInWithGoogle,
 } from "../firebase/auth";
 import { useAuth } from "../contexts/AuthContext";
 
-const Login = () => {
-  const { userLoggedin } = useAuth();
-
+const Register = () => {
   const navigate = useNavigate();
+  const { userLoggedin } = useAuth();
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+
+  useEffect(() => {
+    if (userLoggedin) {
+      navigate("/");
+    }
+  }, [userLoggedin]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -24,12 +30,6 @@ const Login = () => {
     });
   };
 
-  useEffect(() => {
-    if (userLoggedin) {
-      navigate("/");
-    }
-  }, [userLoggedin]);
-
   const handleSubmit = async () => {
     if (!agreeToTerms) {
       alert("Please agree to the Terms & Conditions");
@@ -37,23 +37,30 @@ const Login = () => {
     }
 
     try {
-      await doSignInWithEmailAndPassword(formData.email, formData.password);
-      alert("Login successful!");
-      navigate("/"); // change route as needed
+      await doCreateUserWithEmailAndPassword(formData.email, formData.password);
+      alert("Registration successful!");
+
+      // TODO: Optional — Store `formData.name` in Firestore or your DB
+
+      navigate("/"); // or any route you want after successful registration
     } catch (error: any) {
-      console.error("Login error:", error);
-      alert(error.message || "Login failed");
+      console.error("Registration error:", error);
+      alert(error.message || "Registration failed");
     }
   };
 
   const handleGoogleRegister = async () => {
     try {
-      await doSignInWithGoogle();
-      alert("Logged in with Google!");
-      navigate("/dashboard"); // change route as needed
+      const result = await doSignInWithGoogle();
+      const user = result.user;
+
+      // TODO: Optional — Store name/email/photo in your DB if it's a new user
+
+      alert("Google registration successful!");
+      navigate("/");
     } catch (error: any) {
-      console.error("Google login error:", error);
-      alert(error.message || "Google login failed");
+      console.error("Google registration error:", error);
+      alert(error.message || "Google registration failed");
     }
   };
 
@@ -72,15 +79,41 @@ const Login = () => {
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/50 z-[-1]" />
 
-      {/* Login Form */}
-      <div className="w-full max-w-md relative">
+      {/* Registration Form */}
+      <div className="relative w-full max-w-md">
         <div className="relative z-10 backdrop-blur-xl bg-black/50 rounded-3xl p-12 overflow-hidden border border-black/40">
           {/* Title */}
           <h2 className="text-3xl font-bold text-center text-white mb-8">
-            Login
+            Registration
           </h2>
 
+          {/* Form Fields */}
           <div className="flex flex-col gap-6">
+            {/* Name Field */}
+            <div className="relative">
+              <svg
+                className="absolute top-1/2 left-4 -translate-y-1/2 w-5 h-5 text-white/70 pointer-events-none"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                />
+              </svg>
+              <input
+                type="text"
+                name="name"
+                placeholder="Name"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+                className="w-full py-4 pl-12 pr-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white text-base focus:outline-none focus:ring-2 focus:ring-white/30 placeholder:text-white/70"
+              />
+            </div>
+
             {/* Email Field */}
             <div className="relative">
               <svg
@@ -143,7 +176,7 @@ const Login = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242"
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L12 12m-2.122-2.122L7.757 7.757M12 12l2.122 2.122m-2.122-2.122L16.243 16.243"
                     />
                   </svg>
                 ) : (
@@ -169,15 +202,29 @@ const Login = () => {
               </button>
             </div>
 
-            {/* Login Button */}
+            {/* Terms */}
+            <div className="flex items-center gap-3 text-sm text-white/90">
+              <input
+                type="checkbox"
+                id="terms"
+                checked={agreeToTerms}
+                onChange={(e) => setAgreeToTerms(e.target.checked)}
+                className="w-5 h-5 rounded border-2 border-white/30 bg-white/10 accent-white/40"
+              />
+              <label htmlFor="terms" className="cursor-pointer">
+                I Agree to the Terms & Conditions
+              </label>
+            </div>
+
+            {/* Register Button */}
             <button
               onClick={handleSubmit}
               disabled={!agreeToTerms}
               className="w-full py-4 rounded-xl font-semibold text-gray-800 bg-[#f4e3b5] text-base transition-transform transform hover:scale-105 hover:shadow-xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-              Login
+              Register
             </button>
 
-            {/* Google Button */}
+            {/* Google Auth */}
             <button
               type="button"
               onClick={handleGoogleRegister}
@@ -191,14 +238,14 @@ const Login = () => {
               <span>Continue with Google</span>
             </button>
 
-            {/* Register Link */}
+            {/* Login Link */}
             <div className="text-center text-white/90 mt-6 text-sm">
-              Don't have an account?{" "}
+              Already have an account?{" "}
               <button
                 type="button"
-                onClick={() => navigate("/register")}
+                onClick={() => navigate("/")}
                 className="font-semibold underline hover:text-white">
-                Register
+                Login
               </button>
             </div>
           </div>
@@ -208,4 +255,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

@@ -1,108 +1,66 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { onAuthStateChanged, User } from "firebase/auth";
+import { auth } from "../firebase/firebase";
 
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  hasSetupProfile: boolean;
-  avatar?: string;
-}
-
+// 1. Define the context type
 interface AuthContextType {
-  user: User | null;
-  login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string, name: string) => Promise<void>;
-  logout: () => void;
-  isLoading: boolean;
+  currentUser: User | null;
+  userLoggedin: boolean;
+  loading: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// 2. Create the context with default value
+const AuthContext = createContext<AuthContextType>({
+  currentUser: null,
+  userLoggedin: false,
+  loading: true,
+});
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
-  const location = useLocation();
+// 3. Custom hook
+export function useAuth() {
+  return useContext(AuthContext);
+}
+
+// 4. AuthProvider component
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [userLoggedin, setUserLoggedin] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Check for saved auth token
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    } else if (!location.pathname.includes('/login') && !location.pathname.includes('/signup')) {
-      navigate('/login');
-    }
-    setIsLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUser(user);
+        setUserLoggedin(true);
+      } else {
+        setCurrentUser(null);
+        setUserLoggedin(false);
+      }
+      setLoading(false);
+    });
+
+    return unsubscribe;
   }, []);
 
-  const login = async (email: string, password: string) => {
-    try {
-      setIsLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock user data
-      const userData: User = {
-        id: '1',
-        email,
-        name: email.split('@')[0],
-        hasSetupProfile: false,
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&h=300'
-      };
-      
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
-      navigate('/setup-profile');
-    } catch (error) {
-      throw new Error('Login failed');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const signup = async (email: string, password: string, name: string) => {
-    try {
-      setIsLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock user data
-      const userData: User = {
-        id: '1',
-        email,
-        name,
-        hasSetupProfile: false,
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&h=300'
-      };
-      
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
-      navigate('/setup-profile');
-    } catch (error) {
-      throw new Error('Signup failed');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
-    navigate('/login');
+  const value: AuthContextType = {
+    currentUser,
+    userLoggedin,
+    loading,
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, isLoading }}>
-      {children}
+    <AuthContext.Provider value={value}>
+      {!loading && children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 }

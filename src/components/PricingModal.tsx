@@ -1,50 +1,58 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { X, Check, Sparkles, Bot, MessageSquare, Zap, Crown } from 'lucide-react';
-import { createSubscription } from '../services/stripe';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  X,
+  Check,
+  Sparkles,
+  Bot,
+  MessageSquare,
+  Zap,
+  Crown,
+} from "lucide-react";
+// import { createSubscription } from '../services/stripe';
 
 const features = [
-  'Access to all AI companions',
-  'Unlimited messages',
-  'Priority response time',
-  'Advanced customization',
-  'Exclusive companions',
-  'Voice chat support',
-  'Custom AI companions',
-  'Priority support'
+  "Access to all AI companions",
+  "Unlimited messages",
+  "Priority response time",
+  "Advanced customization",
+  "Exclusive companions",
+  "Voice chat support",
+  "Custom AI companions",
+  "Priority support",
 ];
 
 const plans = [
   {
-    name: 'Monthly',
-    price: '₹99',
-    period: 'month',
+    name: "Monthly",
+    price: "₹99",
+    period: "month",
     features,
     savings: null,
     icon: MessageSquare,
-    color: 'gold'
+    color: "gold",
   },
   {
-    name: '6 Months',
-    price: '₹549',
-    period: '6 months',
-    perMonth: '₹91.50/mo',
+    name: "6 Months",
+    price: "₹549",
+    period: "6 months",
+    perMonth: "₹91.50/mo",
     features,
-    savings: '28%',
+    savings: "28%",
     icon: Crown,
-    color: 'purple',
-    popular: true
+    color: "purple",
+    popular: true,
   },
   {
-    name: '12 Months',
-    price: '₹999',
-    period: 'year',
-    perMonth: '₹83.25/mo',
+    name: "12 Months",
+    price: "₹999",
+    period: "year",
+    perMonth: "₹83.25/mo",
     features,
-    savings: '39%',
+    savings: "39%",
     icon: Zap,
-    color: 'emerald'
-  }
+    color: "emerald",
+  },
 ];
 
 interface PricingModalProps {
@@ -56,23 +64,24 @@ export function PricingModal({ isOpen, onClose }: PricingModalProps) {
   const navigate = useNavigate();
 
   const handleSubscribe = async (planName: string) => {
-    const plan = plans.find(p => p.name === planName);
-    if (!plan) return;
+    // const plan = plans.find(p => p.name === planName);
+    // if (!plan) return;
 
-    // First try to create Stripe subscription
-    try {
-      await createSubscription(planName);
-    } catch (error) {
-      console.error('Stripe subscription error:', error);
-    }
+    // // First try to create Stripe subscription
+    // try {
+    //   await createSubscription(planName);
+    // } catch (error) {
+    //   console.error('Stripe subscription error:', error);
+    // }
 
-    // Navigate to payment page
-    onClose();
-    navigate('/upgrade/payment');
+    // // Navigate to payment page
+    // onClose();
+    // navigate('/upgrade/payment');
+
+    console.log("Subscribed");
   };
 
   if (!isOpen) return null;
-
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
@@ -82,12 +91,13 @@ export function PricingModal({ isOpen, onClose }: PricingModalProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Sparkles className="w-8 h-8 text-gold" />
-              <h2 className="text-2xl font-bold text-white">Upgrade Your Experience</h2>
+              <h2 className="text-2xl font-bold text-white">
+                Upgrade Your Experience
+              </h2>
             </div>
             <button
               onClick={onClose}
-              className="text-zinc-400 hover:text-zinc-300 transition-colors"
-            >
+              className="text-zinc-400 hover:text-zinc-300 transition-colors">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -103,27 +113,31 @@ export function PricingModal({ isOpen, onClose }: PricingModalProps) {
               <div
                 key={plan.name}
                 className={`relative bg-zinc-800/50 rounded-xl overflow-hidden ${
-                  plan.popular ? 'ring-2 ring-purple-500' : ''
-                }`}
-              >
+                  plan.popular ? "ring-2 ring-purple-500" : ""
+                }`}>
                 {plan.popular && (
                   <div className="absolute top-0 right-0 bg-purple-500 text-white px-4 py-1 text-sm font-medium rounded-bl-xl">
                     Best Value
                   </div>
                 )}
-                
+
                 <div className="p-6">
                   {/* Plan Header */}
                   <div className="flex items-center space-x-3 mb-4">
-                    <div className={`w-12 h-12 rounded-xl bg-${plan.color}/10 flex items-center justify-center`}>
+                    <div
+                      className={`w-12 h-12 rounded-xl bg-${plan.color}/10 flex items-center justify-center`}>
                       <plan.icon className={`w-6 h-6 text-${plan.color}`} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-white">{plan.name}</h3>
+                      <h3 className="text-xl font-bold text-white">
+                        {plan.name}
+                      </h3>
                       <div>
                         <p className="text-gold font-medium">{plan.price}</p>
                         {plan.perMonth && (
-                          <p className="text-sm text-zinc-400">{plan.perMonth}</p>
+                          <p className="text-sm text-zinc-400">
+                            {plan.perMonth}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -138,7 +152,9 @@ export function PricingModal({ isOpen, onClose }: PricingModalProps) {
                   {/* Features */}
                   <ul className="space-y-3 mb-6">
                     {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-start space-x-2 text-zinc-300">
+                      <li
+                        key={feature}
+                        className="flex items-start space-x-2 text-zinc-300">
                         <Check className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
                         <span>{feature}</span>
                       </li>
@@ -149,11 +165,12 @@ export function PricingModal({ isOpen, onClose }: PricingModalProps) {
                   <button
                     onClick={() => handleSubscribe(plan.name)}
                     className={`w-full py-3 rounded-lg transition-colors font-medium ${
-                      plan.popular ? 'bg-purple-500 text-white hover:bg-purple-600' :
-                      plan.name === 'Monthly' ? 'bg-gold text-zinc-900 hover:bg-gold/90' :
-                      'bg-emerald-500 text-white hover:bg-emerald-600'
-                    }`}
-                  >
+                      plan.popular
+                        ? "bg-purple-500 text-white hover:bg-purple-600"
+                        : plan.name === "Monthly"
+                        ? "bg-gold text-zinc-900 hover:bg-gold/90"
+                        : "bg-emerald-500 text-white hover:bg-emerald-600"
+                    }`}>
                     Subscribe Now
                   </button>
                 </div>
@@ -171,8 +188,7 @@ export function PricingModal({ isOpen, onClose }: PricingModalProps) {
             </div>
             <button
               onClick={onClose}
-              className="px-6 py-2 bg-zinc-800 text-zinc-300 rounded-lg hover:bg-zinc-700 transition-colors"
-            >
+              className="px-6 py-2 bg-zinc-800 text-zinc-300 rounded-lg hover:bg-zinc-700 transition-colors">
               Close
             </button>
           </div>
