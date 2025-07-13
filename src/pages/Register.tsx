@@ -4,6 +4,7 @@ import {
   doCreateUserWithEmailAndPassword,
   doSignInWithGoogle,
 } from "../firebase/auth";
+import { getAuth } from "firebase/auth";
 import { useAuth } from "../contexts/AuthContext";
 
 const Register = () => {
@@ -41,8 +42,15 @@ const Register = () => {
       alert("Registration successful!");
 
       // TODO: Optional — Store `formData.name` in Firestore or your DB
-
-      navigate("/"); // or any route you want after successful registration
+      const auth = getAuth();
+      const uid = auth.currentUser?.uid;
+      navigate("/user-info", {
+        state: {
+          name: formData.name,
+          email: formData.email,
+          uid,
+        },
+      }); // or any route you want after successful registration
     } catch (error: any) {
       console.error("Registration error:", error);
       alert(error.message || "Registration failed");
@@ -53,11 +61,17 @@ const Register = () => {
     try {
       const result = await doSignInWithGoogle();
       const user = result.user;
-
+      const uid = user.uid;
       // TODO: Optional — Store name/email/photo in your DB if it's a new user
 
       alert("Google registration successful!");
-      navigate("/");
+      navigate("/user-info", {
+        state: {
+          name: formData.name,
+          email: formData.email,
+          uid,
+        },
+      });
     } catch (error: any) {
       console.error("Google registration error:", error);
       alert(error.message || "Google registration failed");

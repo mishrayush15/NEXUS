@@ -5,6 +5,8 @@ import {
   doSignInWithGoogle,
 } from "../firebase/auth";
 import { useAuth } from "../contexts/AuthContext";
+import { auth } from "../firebase/firebase";
+import { setPersistence, browserSessionPersistence } from "firebase/auth";
 
 const Login = () => {
   const { userLoggedin } = useAuth();
@@ -37,9 +39,10 @@ const Login = () => {
     }
 
     try {
+      await setPersistence(auth, browserSessionPersistence); // 👈 Apply session-based persistence
       await doSignInWithEmailAndPassword(formData.email, formData.password);
       alert("Login successful!");
-      navigate("/"); // change route as needed
+      navigate("/");
     } catch (error: any) {
       console.error("Login error:", error);
       alert(error.message || "Login failed");
@@ -48,9 +51,10 @@ const Login = () => {
 
   const handleGoogleRegister = async () => {
     try {
+      await setPersistence(auth, browserSessionPersistence); // 👈 Apply session-based persistence
       await doSignInWithGoogle();
       alert("Logged in with Google!");
-      navigate("/dashboard"); // change route as needed
+      navigate("/");
     } catch (error: any) {
       console.error("Google login error:", error);
       alert(error.message || "Google login failed");

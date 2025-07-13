@@ -1,6 +1,10 @@
 // firebase.ts or firebaseConfig.ts
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import {
+  getAuth,
+  setPersistence,
+  browserSessionPersistence,
+} from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -15,5 +19,9 @@ const firebaseConfig = {
 // 🔐 Safely initialize once
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
+
+setPersistence(auth, browserSessionPersistence).catch((error) => {
+  console.error("Persistence setup failed:", error);
+});
 
 export { app, auth };

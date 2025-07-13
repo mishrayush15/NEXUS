@@ -19,6 +19,7 @@ import Showdown from "./pages/Showdown";
 import MyChats from "./pages/MyChats";
 import Companion from "./pages/Companion";
 import NexusVibe from "./pages/NexusVibe";
+import UserInfoForm from "./pages/UserInfoForm";
 
 function App() {
   const PaymentGatewayWrapper = () => {
@@ -42,6 +43,7 @@ function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/user-info" element={<UserInfoForm />} />
               <Route path="/setup-profile" element={<SetupProfile />} />
               <Route path="/" element={<Home />} />
               <Route path="/ai" element={<AiChat />} />

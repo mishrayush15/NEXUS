@@ -30,10 +30,45 @@ interface ChatHistoryItem {
   }[];
   role?: string;
 }
+const sampleChatHistory: ChatHistoryItem[] = [
+  {
+    id: "chat1",
+    characterId: "char1",
+    characterName: "Ava the Assistant",
+    characterImage: "https://via.placeholder.com/150",
+    lastMessage: "How can I help you today?",
+    timestamp: Date.now() - 100000,
+    messages: [
+      {
+        user: "What's the weather today?",
+        ai: "The weather is sunny with a high of 30°C.",
+        timestamp: Date.now() - 200000,
+      },
+    ],
+    role: "assistant",
+  },
+  {
+    id: "chat2",
+    characterId: "char2",
+    characterName: "Leo the Life Coach",
+    characterImage: "https://via.placeholder.com/150/0000FF/FFFFFF?text=Leo",
+    lastMessage: "Remember to take a deep breath.",
+    timestamp: Date.now() - 500000,
+    messages: [
+      {
+        user: "I'm feeling anxious.",
+        ai: "It's okay to feel that way. Let's talk about it.",
+        timestamp: Date.now() - 600000,
+      },
+    ],
+    role: "coach",
+  },
+];
 
 function MyChats() {
   const navigate = useNavigate();
-  const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
+  const [chatHistory, setChatHistory] =
+    useState<ChatHistoryItem[]>(sampleChatHistory);
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showFavorites, setShowFavorites] = useState(false);
