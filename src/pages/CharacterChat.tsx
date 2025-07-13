@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { getAuth } from "firebase/auth";
 import axios from "axios";
 import {
   ArrowLeft,
   Send,
-  Image,
   Smile,
   Paperclip,
   Info,
@@ -12,12 +12,7 @@ import {
   History,
   Palette,
   Plus,
-  Moon,
-  Sun,
-  Trash,
   X,
-  ChevronRight,
-  Bot as BotIcon,
   Mic,
   MicOff,
 } from "lucide-react";
@@ -554,6 +549,84 @@ function CharacterChat() {
     return <FullPageLoader />;
   }
 
+  const formatMessagesForBackend = (
+    rawMessages: { text: string; sender: "user" | "ai" }[]
+  ) => {
+    const pairedMessages = [];
+
+    for (let i = 0; i < rawMessages.length; i += 2) {
+      const userMsg = rawMessages[i];
+      const aiMsg = rawMessages[i + 1];
+
+      if (
+        userMsg &&
+        aiMsg &&
+        userMsg.sender === "user" &&
+        aiMsg.sender === "ai"
+      ) {
+        pairedMessages.push({
+          user: userMsg.text,
+          ai: aiMsg.text,
+          timestamp: Date.now(), // or use individual message timestamps if available
+        });
+      }
+    }
+
+    return pairedMessages;
+  };
+
+  const sendChatToBackend = async ({
+    userId,
+    characterId,
+    messages,
+  }: {
+    userId: string;
+    characterId: string;
+    messages: {
+      user: string;
+      ai: string;
+      timestamp: number;
+    }[];
+  }) => {
+    const payload = {
+      user_id: userId,
+      character_id: characterId,
+      messages,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/api/v1/chats",
+        payload
+      );
+      console.log("Chat saved:", response.data);
+    } catch (error) {
+      console.error("Failed to save chat:", error);
+    }
+  };
+
+  const handleBackClick = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user || !characterId || messages.length < 2) {
+      navigate("/ai");
+      return;
+    }
+
+    const formattedMessages = formatMessagesForBackend(messages);
+
+    await sendChatToBackend({
+      userId: user.uid,
+      characterId,
+      messages: formattedMessages,
+    });
+
+    navigate("/ai");
+  };
+
   return (
     <div
       className="min-h-screen flex"
@@ -704,7 +777,7 @@ function CharacterChat() {
           <div className="px-6 py-4 flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => navigate("/ai")}
+                onClick={handleBackClick}
                 className="text-gold hover:text-gold/80 transition-colors">
                 <ArrowLeft className="w-6 h-6" />
               </button>
