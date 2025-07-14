@@ -3,6 +3,7 @@ import { Users, Bot, ChevronLeft, ChevronRight, MessageSquare } from 'lucide-rea
 import { useNavigate } from 'react-router-dom';
 import { MainNavbar } from '../components/MainNavbar';
 import { FeatureNavigation } from '../components/FeatureNavigation';
+import { useSettings } from '../contexts/SettingsContext';
 
 const showcaseItems = [
   {
@@ -32,6 +33,16 @@ function Home() {
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+   const { incognitoMode } = useSettings(); 
+    const accentText = incognitoMode ? 'text-orange-500' : 'text-gold';
+  const accentBg = incognitoMode ? 'bg-orange-500/10' : 'bg-gold/10';
+  const accentBorder = incognitoMode ? 'border-orange-500/20' : 'border-gold/20';
+  const accentGradient = incognitoMode
+    ? 'from-orange-500/0 via-orange-500/10 to-orange-500/0'
+    : 'from-gold/0 via-gold/10 to-gold/0';
+  const mainBg = incognitoMode ? 'bg-black' : 'bg-zinc-900';
+  const sideMenuBg = incognitoMode ? 'bg-black/80' : 'bg-zinc-800/50';
+  const borderColor = incognitoMode ? 'border-black' : 'border-zinc-800';
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -58,19 +69,20 @@ function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-900 flex flex-col">
+    <div className={`min-h-screen ${mainBg} flex flex-col`}>
       <MainNavbar />
-      <nav className="fixed left-0 top-0 h-screen w-56 bg-zinc-800/50 backdrop-blur-sm border-r border-zinc-800">
+      <nav className={`fixed left-0 top-0 h-screen w-56 ${sideMenuBg} backdrop-blur-sm border-r ${borderColor}`}>
         <div className="p-6">
           <div className="flex items-center space-x-3 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center border border-gold/20 relative overflow-hidden group">
-              <span className="text-2xl font-bold text-gold group-hover:scale-110 transition-transform">N</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-gold/0 via-gold/10 to-gold/0 animate-shimmer" />
+            <div className={`w-10 h-10 rounded-xl ${accentBg} flex items-center justify-center border ${accentBorder} relative overflow-hidden group`}>
+              <span className={`text-2xl font-bold ${accentText} group-hover:scale-110 transition-transform`}>N</span>
+              <div className={`absolute inset-0 bg-gradient-to-r ${accentGradient} animate-shimmer`} />
             </div>
-            <span className="text-xl font-bold text-gold">Nexus AI</span>
+            <span className={`text-xl font-bold ${accentText}`}>Nexus AI</span>
           </div>
         </div>
       </nav>
+
 
       {/* Hero Section with Showcase */}
       <div className="relative h-screen overflow-hidden">
@@ -93,9 +105,9 @@ function Home() {
 
         {/* Content */}
         <div className="relative z-10 h-full flex flex-col items-center justify-center px-4">
-          <h1 className="text-8xl font-bold text-gold text-center mb-16 animate-fade-in">
-          Nexus
-          </h1>
+          <h1 className={`text-8xl font-bold ${accentText} text-center mb-16 animate-fade-in`}>
+        Nexus
+      </h1>
 
 
           {/* Showcase Content */}
@@ -117,11 +129,11 @@ function Home() {
                       <h2 className="text-4xl font-bold text-white mb-4">{item.title}</h2>
                       <p className="text-xl text-zinc-300 mb-8">{item.description}</p>
                       <button
-                        onClick={() => navigate(item.route)}
-                        className="relative z-10 px-8 py-3 bg-gold text-zinc-900 rounded-lg hover:bg-gold/90 transition-colors font-medium"
-                      >
-                        Explore Now
-                      </button>
+        onClick={() => navigate(item.route)}
+        className={`relative z-10 px-8 py-3 ${accentBg.replace('/10', '')} ${accentText.replace('text-', 'bg-')} rounded-lg hover:${accentBg.replace('/10', '/90')} transition-colors font-medium`}
+      >
+        Explore Now
+      </button>
                     </div>
                   </div>
                 ))}
@@ -146,20 +158,20 @@ function Home() {
             <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 flex space-x-2 z-20">
               {showcaseItems.map((_, index) => (
                 <button
-                  key={index}
-                  onClick={() => {
-                    if (!isAnimating) {
-                      setIsAnimating(true);
-                      setCurrentSlide(index);
-                      setTimeout(() => setIsAnimating(false), 500);
-                    }
-                  }}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    index === currentSlide
-                      ? 'w-8 bg-gold'
-                      : 'bg-zinc-500 hover:bg-zinc-400'
-                  }`}
-                />
+  key={index}
+  onClick={() => {
+    if (!isAnimating) {
+      setIsAnimating(true);
+      setCurrentSlide(index);
+      setTimeout(() => setIsAnimating(false), 500);
+    }
+  }}
+  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+    index === currentSlide
+      ? `w-8 ${accentBg.replace('/10', '')}`
+      : 'bg-zinc-500 hover:bg-zinc-400'
+  }`}
+/>
               ))}
             </div>
           </div>

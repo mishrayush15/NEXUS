@@ -30,6 +30,7 @@ export interface Room {
   members: string[]; // array of user IDs
   campusTag?: string;
   trendingScore?: number;
+  messages: Message[]; 
 }
 
 export interface Message {

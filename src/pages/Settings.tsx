@@ -38,7 +38,17 @@ function Settings() {
     setIncognitoMode,
     currentDisplayTheme,
   } = useSettings();
-  
+   const accentText = incognitoMode ? 'text-orange-500' : 'text-gold';
+  const accentBg = incognitoMode ? 'bg-orange-500/10' : 'bg-gold/10';
+  const accentBorder = incognitoMode ? 'border-orange-500/20' : 'border-gold/20';
+  const accentGradient = incognitoMode
+    ? 'from-orange-500/0 via-orange-500/10 to-orange-500/0'
+    : 'from-gold/0 via-gold/10 to-gold/0';
+    const mainBg = incognitoMode ? 'bg-black' : 'bg-zinc-900';
+const sideMenuBg = incognitoMode ? 'bg-black/80' : 'bg-zinc-800/50';
+const cardBg = incognitoMode ? 'bg-black' : 'bg-white dark:bg-zinc-900';
+const borderColor = incognitoMode ? 'border-black' : 'border-zinc-800';
+const cardBorder = incognitoMode ? 'border-black' : 'border-zinc-200 dark:border-zinc-800';
   const { logout } = useAuth();
   const [notifications, setNotifications] = useState(true);
   const [notificationSound, setNotificationSound] = useState(true);
@@ -295,19 +305,19 @@ function Settings() {
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-900">
-      {/* Side Menu */}
-      <nav className="fixed left-0 top-0 h-screen w-56 bg-zinc-800/50 backdrop-blur-sm border-r border-zinc-800">
-        <div className="p-6">
-          <div className="flex items-center space-x-3 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center border border-gold/20 relative overflow-hidden group">
-              <span className="text-2xl font-bold text-gold group-hover:scale-110 transition-transform">N</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-gold/0 via-gold/10 to-gold/0 animate-shimmer" />
-            </div>
-            <span className="text-xl font-bold text-gold">Nexus</span>
-          </div>
+    <div className={`min-h-screen ${mainBg}`}>
+  {/* Side Menu */}
+  <nav className={`fixed left-0 top-0 h-screen w-56 ${sideMenuBg} backdrop-blur-sm ${borderColor}`}>
+    <div className="p-6">
+      <div className="flex items-center space-x-3 mb-8">
+        <div className={`w-10 h-10 rounded-xl ${accentBg} flex items-center justify-center border ${accentBorder} relative overflow-hidden group`}>
+          <span className={`text-2xl font-bold ${accentText} group-hover:scale-110 transition-transform`}>N</span>
+          <div className={`absolute inset-0 bg-gradient-to-r ${accentGradient} animate-shimmer`} />
         </div>
-      </nav>
+        <span className={`text-xl font-bold ${accentText}`}>Nexus</span>
+      </div>
+    </div>
+  </nav>
 
       {/* Main Content */}
       <main className="ml-56">
@@ -315,16 +325,16 @@ function Settings() {
         <header className="border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-sm">
           <div className="px-6 py-4">
             <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate('/ai')}
-                className="text-gold hover:text-gold/80 transition-colors"
-              >
-                <ArrowLeft className="w-6 h-6" />
-              </button>
-              <div className="flex items-center space-x-2">
-                <UserCog className="w-8 h-8 text-gold" />
-                <span className="text-2xl font-bold text-gold">Settings</span>
-              </div>
+             <button
+  onClick={() => navigate('/ai')}
+  className={`${accentText} hover:text-orange-400 transition-colors`}
+>
+  <ArrowLeft className="w-6 h-6" />
+</button>
+<div className="flex items-center space-x-2">
+  <UserCog className={`w-8 h-8 ${accentText}`} />
+  <span className={`text-2xl font-bold ${accentText}`}>Settings</span>
+</div>
             </div>
           </div>
         </header>
@@ -338,7 +348,7 @@ function Settings() {
                 <div className="space-y-4 bg-white dark:bg-zinc-900 p-4 rounded-xl shadow border border-zinc-200 dark:border-zinc-800">
                   {section.items.map((item, j) => (
                     <div
-                      key={j}
+                      key={j} 
                       className={`flex items-center justify-between py-3 ${
                         j !== section.items.length - 1 ? 'border-b border-zinc-100 dark:border-zinc-800' : ''
                       } ${item.disabled ? 'opacity-60' : ''}`}
