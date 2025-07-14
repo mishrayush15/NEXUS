@@ -1,11 +1,12 @@
 // HomeScreen.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../App.css";
 import AvatarChanger from "../components/AvatarChanger";
 import Footer from "../components/Footer";
 import { createAvatar } from '@dicebear/core';
 import { openPeeps, adventurer, avataaars, bigEars, bigSmile, bottts, croodles, funEmoji, lorelei, loreleiNeutral, micah, miniavs, notionists, personas } from '@dicebear/collection';
 import { useNavigate } from 'react-router-dom';
+import socket from "../socket"; // ✅ Import socket
 
 const HomeScreen = () => {
   const navigate = useNavigate();
@@ -47,8 +48,8 @@ const HomeScreen = () => {
   };
 
   const handlePlayButtonClick = () => {
-    if(!username || !avatar || !language){
-      console.log("please fill in all the details")
+    if (!username || !avatar || !language) {
+      console.log("Please fill in all the details");
       return;
     }
     const userData = {
@@ -58,14 +59,33 @@ const HomeScreen = () => {
       roomCode
     };
     console.log("User Data:", userData);
-    localStorage.setItem("username", username)
+    localStorage.setItem("username", username);
     navigate('/play', { state: { username, avatar } });
   };
+
+  // ✅ Handle socket connection and emit user data
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("Connected to backend:", socket.id);
+    });
+
+    socket.on("send-user-data", () => {
+      socket.emit("recieve-user-data", {
+        username,
+        avatar,
+      });
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("send-user-data");
+    };
+  }, [username, avatar]);
 
   return (
     <div>
       <header className="app-header">
-        <h1>skribblay.you</h1>
+        <h1>Scribble</h1>
       </header>
       <div className="main-container">
         <div className="input-container">
