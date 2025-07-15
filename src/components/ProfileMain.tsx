@@ -77,7 +77,7 @@ const ProfileMain: React.FC<ProfileMainProps> = ({
             <div className="relative w-full h-40 sm:h-52 bg-zinc-800 rounded-xl overflow-hidden">
               <img
                 src={
-                  profileData.bannerImg ||
+                  profileData.bannerImage ||
                   "https://source.unsplash.com/1200x400/?nature,abstract"
                 }
                 alt="Banner"
@@ -117,7 +117,7 @@ const ProfileMain: React.FC<ProfileMainProps> = ({
           <div className="relative px-6 mt-[-80px] sm:mt-[-88px]">
             <div className="ml-10 w-40 h-40 rounded-full bg-zinc-800 border-4 border-zinc-900 overflow-hidden relative z-10">
               <img
-                src={profileData.image}
+                src={profileData.profileImage}
                 alt="Profile"
                 className="w-full h-full object-cover"
               />

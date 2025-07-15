@@ -598,7 +598,7 @@ function CharacterChat() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/v1/chats",
+        "http://localhost:8000/api/v1/chat/ai/save-chat",
         payload
       );
       console.log("Chat saved:", response.data);

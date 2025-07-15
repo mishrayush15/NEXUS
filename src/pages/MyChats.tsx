@@ -3,18 +3,17 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   Search,
-  Bot,
   MessageSquare,
   Trash2,
   Clock,
-  Calendar,
-  User,
   Star,
 } from "lucide-react";
 import { ProfileButton } from "../components/ProfileButton";
 import { FeatureNavigation } from "../components/FeatureNavigation";
 import { formatDistanceToNow } from "date-fns";
 import { useCharacterContext } from "../contexts/CharacterContext";
+import { getAuth } from "firebase/auth";
+import axios from "axios";
 
 interface ChatHistoryItem {
   id: string;
@@ -22,7 +21,7 @@ interface ChatHistoryItem {
   characterName: string;
   characterImage: string;
   lastMessage: string;
-  timestamp: number;
+  timestamp: number | Date;
   messages: {
     user: string;
     ai: string;
@@ -30,151 +29,112 @@ interface ChatHistoryItem {
   }[];
   role?: string;
 }
-const sampleChatHistory: ChatHistoryItem[] = [
-  {
-    id: "chat1",
-    characterId: "char1",
-    characterName: "Ava the Assistant",
-    characterImage: "https://via.placeholder.com/150",
-    lastMessage: "How can I help you today?",
-    timestamp: Date.now() - 100000,
-    messages: [
-      {
-        user: "What's the weather today?",
-        ai: "The weather is sunny with a high of 30°C.",
-        timestamp: Date.now() - 200000,
-      },
-    ],
-    role: "assistant",
-  },
-  {
-    id: "chat2",
-    characterId: "char2",
-    characterName: "Leo the Life Coach",
-    characterImage: "https://via.placeholder.com/150/0000FF/FFFFFF?text=Leo",
-    lastMessage: "Remember to take a deep breath.",
-    timestamp: Date.now() - 500000,
-    messages: [
-      {
-        user: "I'm feeling anxious.",
-        ai: "It's okay to feel that way. Let's talk about it.",
-        timestamp: Date.now() - 600000,
-      },
-    ],
-    role: "coach",
-  },
-];
 
 function MyChats() {
   const navigate = useNavigate();
-  const [chatHistory, setChatHistory] =
-    useState<ChatHistoryItem[]>(sampleChatHistory);
+  const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showFavorites, setShowFavorites] = useState(false);
   const { characters } = useCharacterContext();
 
-  // Load chat history from localStorage
   useEffect(() => {
+    const fetchChatHistory = async () => {
+      try {
+        const auth = getAuth();
+        const user = auth.currentUser;
+
+        if (!user) {
+          console.warn("No authenticated Firebase user found");
+          return;
+        }
+
+        const userId = user.uid;
+
+        const response = await axios.post(
+          "http://localhost:8000/api/v1/chat/ai/get-saved-chat",
+          { user_id: userId }
+        );
+
+        const backendChats = response.data?.data || [];
+
+        const formattedChats: ChatHistoryItem[] = backendChats.map(
+          (chat: any) => {
+            const messages = Array.isArray(chat.messages) ? chat.messages : [];
+            const lastMessageObj = messages[messages.length - 1] || {};
+            const characterInfo = characters[chat.character_id] || {};
+
+            return {
+              id: chat.id,
+              characterId: chat.character_id,
+              characterName: characterInfo.name || `AI Character`,
+              characterImage:
+                characterInfo.image ||
+                "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=150&h=150",
+              lastMessage:
+                lastMessageObj.ai || lastMessageObj.message || "No message",
+              timestamp: chat.updated_at
+                ? new Date(chat.updated_at)
+                : new Date(),
+              messages: messages.map((msg: any) => ({
+                user: msg.user || "",
+                ai: msg.ai || "",
+                timestamp: msg.timestamp || Date.now(),
+              })),
+              role: characterInfo.role,
+            };
+          }
+        );
+
+        setChatHistory(formattedChats);
+
+        const storedFavorites = localStorage.getItem("favorites");
+        if (storedFavorites) {
+          setFavorites(JSON.parse(storedFavorites));
+        }
+      } catch (error) {
+        console.error("Failed to fetch chat history from backend:", error);
+        setChatHistory([]);
+      }
+    };
+
+    fetchChatHistory();
+  }, [characters]);
+
+  const deleteSingleChat = async (e: React.MouseEvent, chatId: string) => {
+    e.stopPropagation();
     try {
-      // Load favorites
-      const storedFavorites = localStorage.getItem("favorites");
-      if (storedFavorites) {
-        setFavorites(JSON.parse(storedFavorites));
-      }
-
-      // Load real chat history from localStorage
-      const storedHistory = localStorage.getItem("chatHistory");
-      const nexusChatHistory = localStorage.getItem("nexus_chat_history");
-      let actualChats: ChatHistoryItem[] = [];
-
-      if (storedHistory) {
-        try {
-          const parsedHistory = JSON.parse(storedHistory);
-
-          // Process the chatHistory based on its structure
-          // This assumes the structure might be an array of chat messages
-          if (Array.isArray(parsedHistory)) {
-            actualChats = parsedHistory
-              .map((chat, index) => {
-                const msgs = Array.isArray(chat) ? chat : [];
-                const lastMsg = msgs.length > 0 ? msgs[msgs.length - 1] : null;
-
-                return {
-                  id: `chat-${index}`,
-                  characterId: `character-${index}`,
-                  characterName: `Character ${index + 1}`,
-                  characterImage:
-                    "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=150&h=150",
-                  lastMessage: lastMsg?.ai || "No message",
-                  timestamp: Date.now() - index * 3600000, // Just for display order
-                  messages: msgs.map((msg) => ({
-                    user: msg.user || "",
-                    ai: msg.ai || "",
-                    timestamp: Date.now() - (msgs.indexOf(msg) + 1) * 60000,
-                  })),
-                  role: characters[`character-${index}`]?.role,
-                };
-              })
-              .filter((chat) => chat.messages.length > 0);
-          }
-        } catch (error) {
-          console.error("Error parsing chatHistory:", error);
-        }
-      }
-
-      // If no chats were found or processed, check nexus_chat_history
-      if (actualChats.length === 0 && nexusChatHistory) {
-        try {
-          const parsedNexusHistory = JSON.parse(nexusChatHistory);
-
-          // Process nexus_chat_history based on its structure
-          // This assumes a structure of { characterId: messages[] }
-          if (parsedNexusHistory && typeof parsedNexusHistory === "object") {
-            actualChats = Object.entries(parsedNexusHistory)
-              .map(([charId, messages], index) => {
-                const msgArray = Array.isArray(messages) ? messages : [];
-                const lastMessage =
-                  msgArray.length > 0 ? msgArray[msgArray.length - 1] : null;
-
-                return {
-                  id: `nexus-${index}`,
-                  characterId: charId,
-                  characterName: `AI Character ${charId}`,
-                  characterImage:
-                    "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=150&h=150",
-                  lastMessage: lastMessage?.message || "No message",
-                  timestamp:
-                    lastMessage?.timestamp || Date.now() - index * 3600000,
-                  messages: msgArray.map((msg) => ({
-                    user: msg.fromUser ? msg.message : "",
-                    ai: !msg.fromUser ? msg.message : "",
-                    timestamp:
-                      msg.timestamp ||
-                      Date.now() - msgArray.indexOf(msg) * 60000,
-                  })),
-                  role: characters[charId]?.role,
-                };
-              })
-              .filter((chat) => chat.messages.length > 0);
-          }
-        } catch (error) {
-          console.error("Error parsing nexus_chat_history:", error);
-        }
-      }
-
-      console.log("Loaded actual chat history:", actualChats);
-
-      // Enhance chats with character information when available
-      const enhancedChats = actualChats.map(enhanceChatWithCharacterInfo);
-      setChatHistory(enhancedChats);
+      await axios.post("http://localhost:8000/api/v1/chat/ai/delete-chat", {
+        chat_id: chatId,
+      });
+      setChatHistory((prev) => prev.filter((chat) => chat.id !== chatId));
     } catch (error) {
-      console.error("Error loading chat history:", error);
-      setChatHistory([]);
+      console.error("Failed to delete chat:", error);
     }
-  }, []);
+  };
 
-  // Filter chats based on search query and favorites filter
+  const deleteAllChats = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      console.warn("No authenticated Firebase user found");
+      return;
+    }
+
+    const userId = user.uid;
+
+    try {
+      await axios.post(
+        "http://localhost:8000/api/v1/chat/ai/delete-all-chats",
+        { user_id: userId }
+      );
+      setChatHistory([]);
+    } catch (error) {
+      console.error("Failed to delete all chats:", error);
+    }
+  };
+
   const filteredChats = chatHistory.filter((chat) => {
     const matchesSearch =
       !searchQuery ||
@@ -187,19 +147,12 @@ function MyChats() {
     return matchesSearch && matchesFavorites;
   });
 
-  // Delete a chat from history
-  const deleteChat = (e: React.MouseEvent, chatId: string) => {
-    e.stopPropagation();
-    setChatHistory((prev) => prev.filter((chat) => chat.id !== chatId));
-    // In a real app, you would also update localStorage here
+  const formatTimestamp = (timestamp: number | Date) => {
+    const date =
+      typeof timestamp === "number" ? new Date(timestamp) : timestamp;
+    return formatDistanceToNow(date, { addSuffix: true });
   };
 
-  // Format timestamp to human-readable format
-  const formatTimestamp = (timestamp: number) => {
-    return formatDistanceToNow(new Date(timestamp), { addSuffix: true });
-  };
-
-  // Toggle favorite status for a character
   const toggleFavorite = (e: React.MouseEvent, characterId: string) => {
     e.stopPropagation();
 
@@ -211,40 +164,8 @@ function MyChats() {
     localStorage.setItem("favorites", JSON.stringify(newFavorites));
   };
 
-  // Get character info if available
-  const getCharacterInfo = (characterId: string) => {
-    // Check if we have this character in our characters object
-    if (characters && characters[characterId]) {
-      return {
-        name: characters[characterId].name,
-        image: characters[characterId].image,
-        role: characters[characterId].role,
-      };
-    }
-    return null;
-  };
-
-  // Enhance chat data with character info when available
-  const enhanceChatWithCharacterInfo = (
-    chat: ChatHistoryItem
-  ): ChatHistoryItem => {
-    const characterInfo = getCharacterInfo(chat.characterId);
-
-    if (characterInfo) {
-      return {
-        ...chat,
-        characterName: characterInfo.name,
-        characterImage: characterInfo.image,
-        role: characterInfo.role,
-      };
-    }
-
-    return chat;
-  };
-
   return (
     <div className="min-h-screen bg-zinc-900">
-      {/* Header */}
       <header className="border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-sm fixed left-0 right-0 top-0 z-50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -289,7 +210,6 @@ function MyChats() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="pt-24 pb-12 px-6">
         <div className="container mx-auto">
           <div className="mb-6 flex items-center justify-between">
@@ -309,9 +229,7 @@ function MyChats() {
                       "Are you sure you want to delete all conversation history?"
                     )
                   ) {
-                    setChatHistory([]);
-                    localStorage.removeItem("chatHistory");
-                    localStorage.removeItem("nexus_chat_history");
+                    deleteAllChats();
                   }
                 }}
                 className="px-3 py-2 bg-zinc-800 text-zinc-300 rounded-lg hover:bg-zinc-700 transition-colors">
@@ -398,7 +316,7 @@ function MyChats() {
                       </div>
 
                       <button
-                        onClick={(e) => deleteChat(e, chat.id)}
+                        onClick={(e) => deleteSingleChat(e, chat.id)}
                         className="p-2 text-zinc-400 hover:text-zinc-100 transition-colors">
                         <Trash2 className="w-4 h-4" />
                       </button>

@@ -3,6 +3,8 @@ import { ArrowLeft, Bot, Sparkles, Check, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCharacterContext } from "../contexts/CharacterContext";
 import { Character } from "../utils/characters";
+import axios from "axios";
+import { getAuth } from "firebase/auth";
 
 function AISettings() {
   const navigate = useNavigate();
@@ -11,10 +13,15 @@ function AISettings() {
   const [greeting, setGreeting] = useState("Hello! How can I help you today?");
   const [tone, setTone] = useState("friendly");
   const [chatMode, setChatMode] = useState("casual");
-  const [avatar, setAvatar] = useState("default");
   const [visibility, setVisibility] = useState("public");
   const [activeSection, setActiveSection] = useState("personality");
   const [saved, setSaved] = useState(false);
+
+  // Avatar handling
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState("default");
+
+  // Particle state
   const [particles, setParticles] = useState<
     Array<{
       id: number;
@@ -25,8 +32,10 @@ function AISettings() {
       opacity: number;
     }>
   >([]);
+
   const { characters } = useCharacterContext();
-  // Create particle effect
+
+  // Particle animation
   useEffect(() => {
     const createParticles = () => {
       const newParticles = [];
@@ -62,28 +71,28 @@ function AISettings() {
     navigate("/ai");
   };
 
-  const handleSave = () => {
-    // Create a unique slug from the name
+  const handleSave = async () => {
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      console.error("User not authenticated.");
+      return;
+    }
+
+    const uid = currentUser.uid;
     const slug = name.toLowerCase().replace(/\s+/g, "-");
 
-    // Create a new character object that conforms to the Character interface
-    const newCharacter: Character = {
+    const character: Omit<Character, "image"> = {
       id: Object.keys(characters).length + 1,
-      name: name,
+      name,
       role: title,
-      image:
-        avatar !== "default" &&
-        avatar !== "robot" &&
-        avatar !== "human" &&
-        avatar !== "anime"
-          ? avatar
-          : "https://images.unsplash.com/photo-1675789652575-0a5d2425b6c2?auto=format&fit=crop&w=300&h=300",
       description: `A ${tone} AI buddy with ${chatMode} capabilities.`,
       tags: [tone, chatMode],
       languages: {
         primary: "English",
         style: tone,
-        greeting: greeting,
+        greeting,
       },
       personality: {
         traits: [tone, chatMode],
@@ -95,16 +104,40 @@ function AISettings() {
       },
     };
 
-    // Add the character to the characters object
-    characters[slug] = newCharacter;
+    const formData = new FormData();
+    formData.append("user_id", uid);
+    formData.append("character", JSON.stringify(character));
 
-    // Show success message
-    setSaved(true);
-    setTimeout(() => {
-      setSaved(false);
-      // Navigate back to AI page with new character parameter
-      navigate(`/ai?newCharacter=${encodeURIComponent(name)}`);
-    }, 2000);
+    if (avatarFile) {
+      formData.append("avatar", avatarFile);
+    }
+
+    try {
+      await axios.post(
+        "http://localhost:8000/api/v1/character/create",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      characters[slug] = {
+        ...character,
+        image:
+          avatarPreview ||
+          "https://images.unsplash.com/photo-1675789652575-0a5d2425b6c2?auto=format&fit=crop&w=300&h=300",
+      };
+
+      setSaved(true);
+      setTimeout(() => {
+        setSaved(false);
+        navigate(`/ai?newCharacter=${encodeURIComponent(name)}`);
+      }, 2000);
+    } catch (error) {
+      console.error("Failed to save character:", error);
+    }
   };
 
   return (
@@ -277,8 +310,10 @@ function AISettings() {
                           type="file"
                           accept="image/*"
                           onChange={(e) => {
-                            if (e.target.files && e.target.files[0]) {
-                              setAvatar(URL.createObjectURL(e.target.files[0]));
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setAvatarFile(file);
+                              setAvatarPreview(URL.createObjectURL(file));
                             }
                           }}
                           className="w-full bg-zinc-800/50 text-white rounded-xl p-4 file:mr-5 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-zinc-900 file:bg-gold hover:file:bg-amber-400 file:transition-all file:duration-300 file:cursor-pointer transition-all duration-300 shadow-inner"
@@ -290,23 +325,18 @@ function AISettings() {
                       </p>
                     </div>
 
-                    <div className="w-40 h-40 relative">
-                      {avatar !== "default" &&
-                      avatar !== "robot" &&
-                      avatar !== "human" &&
-                      avatar !== "anime" ? (
-                        <img
-                          src={avatar}
-                          alt="Avatar Preview"
-                          className="w-40 h-40 rounded-2xl object-cover border-2 border-gold/30 shadow-[0_0_30px_rgba(212,175,55,0.3)] transition-transform duration-500 hover:scale-105"
-                        />
-                      ) : (
-                        <div className="w-40 h-40 rounded-2xl bg-zinc-800/80 flex flex-col items-center justify-center border border-zinc-700/50 text-zinc-400">
-                          <Bot className="w-16 h-16 mb-2 opacity-50" />
-                          <span className="text-sm">No avatar selected</span>
-                        </div>
-                      )}
-                    </div>
+                    {avatarPreview !== "default" ? (
+                      <img
+                        src={avatarPreview}
+                        alt="Avatar Preview"
+                        className="w-40 h-40 rounded-2xl object-cover border-2 border-gold/30 shadow-[0_0_30px_rgba(212,175,55,0.3)] transition-transform duration-500 hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-40 h-40 rounded-2xl bg-zinc-800/80 flex flex-col items-center justify-center border border-zinc-700/50 text-zinc-400">
+                        <Bot className="w-16 h-16 mb-2 opacity-50" />
+                        <span className="text-sm">No avatar selected</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="group">

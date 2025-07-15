@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   UserCircle,
   LogOut,
@@ -8,17 +9,76 @@ import {
   Shield,
   Settings,
 } from "lucide-react";
-import proData from "../data/profileData";
+import { getAuth } from "firebase/auth";
+import axios from "axios";
+
 import ProfileMain from "../components/ProfileMain";
 import PrivacyAndSecurity from "../components/PrivacyAndSecurity";
 import NotificationsAndSound from "../components/NotificationsAndSound";
 
 function Profile() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"videos" | "photos">("videos");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
-  const [profileData, setProfileData] = useState(proData);
+  const [profileData, setProfileData] = useState(null);
   const [selectedTab, setSelectedTab] = useState("profile");
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const auth = getAuth();
+        const currentUser = auth.currentUser;
+
+        if (!currentUser) {
+          console.error("User not authenticated.");
+          return;
+        }
+
+        const uid = currentUser.uid;
+        const response = await axios.post(
+          "http://localhost:8000/api/v1/chat/get-profile-data",
+          { uid }
+        );
+
+        console.log(response.data);
+
+        const profile = response.data.data?.[0]; // ✅ Extract from array
+
+        if (!profile) {
+          console.error("No profile data found");
+          return;
+        }
+
+        // Fallback stats to prevent error in UI
+        const fallbackStats = {
+          follower: 0,
+          following: 0,
+          numOfPost: 0,
+          numOfChar: 0,
+        };
+
+        setProfileData({
+          ...profile,
+          stats: profile.stats || fallbackStats, // If you later merge stats, adjust here
+        });
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+      }
+    };
+
+    fetchProfileData();
+  }, []);
+
+  const handleLogout = async () => {
+    const auth = getAuth();
+    try {
+      await auth.signOut();
+      // Optionally redirect or update UI
+      navigate("/login"); // or use useNavigate() from react-router-dom
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-zinc-900">
@@ -102,6 +162,7 @@ function Profile() {
         {/* Bottom */}
         <div className="p-4 flex justify-center">
           <button
+            onClick={handleLogout}
             className={`flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 ${
               isSidebarOpen ? "px-4 w-full" : "px-2 w-10"
             } rounded-xl transition-all`}>
@@ -112,7 +173,7 @@ function Profile() {
       </nav>
 
       <div>
-        {selectedTab === "profile" && (
+        {selectedTab === "profile" && profileData && (
           <ProfileMain
             isSidebarOpen={isSidebarOpen}
             activeTab={activeTab}

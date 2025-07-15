@@ -32,7 +32,7 @@ import CharacterCreatedNotification from "../components/CharacterCreatedNotifica
 import TrendingCharacters from "../components/TrendingCharacters";
 import CharacterCategory from "../components/CharacterCategory";
 import CharacterCardSkeleton from "../components/CharacterCardSkeleton";
-
+import UserCreations from "../components/UserAiCreation";
 import { useCharacterContext } from "../contexts/CharacterContext"; // ✅ Import global context
 import { menuItems, announcements } from "../data/AI-chat-data/data";
 
@@ -1242,6 +1242,13 @@ function AiChat() {
                     ))}
                 </div>
               </div>
+
+              <UserCreations
+                favorites={favorites}
+                toggleFavorite={toggleFavorite}
+                likes={likes}
+                views={views}
+              />
 
               {/* TrendingCharacters component */}
               <TrendingCharacters

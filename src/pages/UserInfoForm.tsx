@@ -1,34 +1,32 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Camera, UploadCloud } from "lucide-react";
 
 const predefinedInterests = [
   "Technology",
   "Art",
-  "Gaming",
   "Music",
   "Fitness",
+  "Gaming",
   "Travel",
-  "Photography",
-  "Education",
-  "Cooking",
-  "Writing",
 ];
 
 const UserInfoForm = () => {
   const location = useLocation();
   const { name, email, uid } = location.state || {};
   const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     bio: "",
     location: "",
     profileImg: {
-      file: null,
+      file: null as File | null,
       preview: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
     },
     bannerImg: {
-      file: null,
+      file: null as File | null,
       preview:
         "https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1200&q=80",
     },
@@ -37,10 +35,9 @@ const UserInfoForm = () => {
 
   useEffect(() => {
     if (!uid) {
-      // Redirect if someone accesses this page directly
       navigate("/register");
     }
-  }, []);
+  }, [uid, navigate]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -49,8 +46,6 @@ const UserInfoForm = () => {
 
     if (name === "username") {
       let updated = value;
-
-      // Always starts with one "@", remove any extras
       if (!updated.startsWith("@")) {
         updated = "@" + updated.replace(/@/g, "");
       } else {
@@ -69,9 +64,15 @@ const UserInfoForm = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, files } = e.target;
     if (files && files[0]) {
+      const file = files[0];
+      const preview = URL.createObjectURL(file);
+
       setFormData((prev) => ({
         ...prev,
-        [name]: files[0],
+        [name]: {
+          file,
+          preview,
+        },
       }));
     }
   };
@@ -87,14 +88,16 @@ const UserInfoForm = () => {
 
   const handleSubmit = async () => {
     try {
+      setLoading(true);
+
       const form = new FormData();
-      form.append("uid", uid); // From Firebase Auth
-      form.append("name", name); // From Register
-      form.append("email", email); // From Register
+      form.append("uid", uid);
+      form.append("name", name);
+      form.append("email", email);
       form.append("username", formData.username);
       form.append("bio", formData.bio);
       form.append("location", formData.location);
-      form.append("phno", ""); // optional
+      form.append("phno", "");
       form.append("interests", JSON.stringify(formData.interests));
 
       if (formData.profileImg.file) {
@@ -105,10 +108,13 @@ const UserInfoForm = () => {
         form.append("bannerImg", formData.bannerImg.file);
       }
 
-      const res = await fetch("http://localhost:5000/api/user/profile", {
-        method: "POST",
-        body: form,
-      });
+      const res = await fetch(
+        "http://localhost:8000/api/v1/chat/create-profile",
+        {
+          method: "POST",
+          body: form,
+        }
+      );
 
       const data = await res.json();
 
@@ -121,6 +127,8 @@ const UserInfoForm = () => {
     } catch (err: any) {
       console.error(err);
       alert("Error: " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -141,15 +149,20 @@ const UserInfoForm = () => {
 
           <div className="flex flex-col gap-6 text-white">
             {/* Username */}
-            <input
-              type="text"
-              name="username"
-              placeholder="@username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-              className="w-full py-4 px-5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white text-base focus:outline-none focus:ring-2 focus:ring-white/30 placeholder:text-white/70"
-            />
+            <div>
+              <input
+                type="text"
+                name="username"
+                placeholder="@username"
+                value={formData.username}
+                onChange={handleChange}
+                required
+                className="w-full py-4 px-5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white text-base focus:outline-none focus:ring-2 focus:ring-white/30 placeholder:text-white/70"
+              />
+              <p className="text-sm text-white/50 mt-1">
+                Usernames always start with "@"
+              </p>
+            </div>
 
             {/* Bio */}
             <textarea
@@ -189,6 +202,13 @@ const UserInfoForm = () => {
                     className="hidden"
                   />
                 </label>
+                {formData.profileImg.preview && (
+                  <img
+                    src={formData.profileImg.preview}
+                    alt="Profile Preview"
+                    className="mt-2 w-16 h-16 rounded-full object-cover border border-white/30"
+                  />
+                )}
               </div>
 
               {/* Banner Upload */}
@@ -207,6 +227,13 @@ const UserInfoForm = () => {
                     className="hidden"
                   />
                 </label>
+                {formData.bannerImg.preview && (
+                  <img
+                    src={formData.bannerImg.preview}
+                    alt="Banner Preview"
+                    className="mt-2 w-full h-20 object-cover rounded-xl border border-white/30"
+                  />
+                )}
               </div>
             </div>
 
@@ -235,8 +262,11 @@ const UserInfoForm = () => {
             {/* Submit */}
             <button
               onClick={handleSubmit}
-              className="w-full mt-6 py-4 rounded-xl font-semibold text-gray-800 bg-[#f4e3b5] text-base transition-transform transform hover:scale-105 hover:shadow-xl active:scale-95">
-              Save Information
+              disabled={loading}
+              className={`w-full mt-6 py-4 rounded-xl font-semibold text-gray-800 bg-[#f4e3b5] text-base transition-transform transform hover:scale-105 hover:shadow-xl active:scale-95 ${
+                loading ? "opacity-60 cursor-not-allowed" : ""
+              }`}>
+              {loading ? "Saving..." : "Save Information"}
             </button>
           </div>
         </div>

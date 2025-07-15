@@ -10,14 +10,13 @@ import { setPersistence, browserSessionPersistence } from "firebase/auth";
 
 const Login = () => {
   const { userLoggedin } = useAuth();
-
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [agreeToTerms, setAgreeToTerms] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -33,13 +32,8 @@ const Login = () => {
   }, [userLoggedin]);
 
   const handleSubmit = async () => {
-    if (!agreeToTerms) {
-      alert("Please agree to the Terms & Conditions");
-      return;
-    }
-
     try {
-      await setPersistence(auth, browserSessionPersistence); // 👈 Apply session-based persistence
+      await setPersistence(auth, browserSessionPersistence);
       await doSignInWithEmailAndPassword(formData.email, formData.password);
       alert("Login successful!");
       navigate("/");
@@ -51,7 +45,7 @@ const Login = () => {
 
   const handleGoogleRegister = async () => {
     try {
-      await setPersistence(auth, browserSessionPersistence); // 👈 Apply session-based persistence
+      await setPersistence(auth, browserSessionPersistence);
       await doSignInWithGoogle();
       alert("Logged in with Google!");
       navigate("/");
@@ -61,25 +55,17 @@ const Login = () => {
     }
   };
 
-  const handleClose = () => {
-    console.log("Close button clicked");
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden font-sans">
-      {/* Background Image */}
       <img
         src="/images/bgimg.png"
         alt="Background"
         className="absolute inset-0 w-full h-full object-cover z-[-1]"
       />
-      {/* Overlay */}
       <div className="absolute inset-0 bg-black/50 z-[-1]" />
 
-      {/* Login Form */}
       <div className="w-full max-w-md relative">
         <div className="relative z-10 backdrop-blur-xl bg-black/50 rounded-3xl p-12 overflow-hidden border border-black/40">
-          {/* Title */}
           <h2 className="text-3xl font-bold text-center text-white mb-8">
             Login
           </h2>
@@ -176,8 +162,7 @@ const Login = () => {
             {/* Login Button */}
             <button
               onClick={handleSubmit}
-              disabled={!agreeToTerms}
-              className="w-full py-4 rounded-xl font-semibold text-gray-800 bg-[#f4e3b5] text-base transition-transform transform hover:scale-105 hover:shadow-xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+              className="w-full py-4 rounded-xl font-semibold text-gray-800 bg-[#f4e3b5] text-base transition-transform transform hover:scale-105 hover:shadow-xl active:scale-95">
               Login
             </button>
 
