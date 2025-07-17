@@ -1,33 +1,35 @@
-import { Routes, Route, useNavigate } from 'react-router-dom';
-import Home from './pages/Home';
-import AiChat from './pages/AiChat';
-import CharacterChat from './pages/CharacterChat';
-import Settings from './pages/Settings';
-import GroupChat from './pages/GroupChat';
-import Profile from './pages/Profile';
-import { PaymentGateway } from './components/PaymentGateway'; 
-import { SettingsProvider } from './contexts/SettingsContext';
-import { AuthProvider } from './contexts/AuthContext';
-import { CompanionProvider } from './contexts/CompanionContext';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import SetupProfile from './pages/SetupProfile';
-import AISettings from './pages/AISettings';
-import Showdown from './pages/Showdown';
-import MyChats from './pages/MyChats';
-import Companion from './pages/Companion';
-import { ChatProvider } from './contexts/ChatContext';
-import NexusVibe from './pages/NexusVibe';
+import { Routes, Route, useNavigate } from "react-router-dom";
+import Home from "./pages/Home";
+import AiChat from "./pages/AiChat";
+import CharacterChat from "./pages/CharacterChat";
+import Settings from "./pages/Settings";
+import GroupChat from "./pages/GroupChat";
+import Profile from "./pages/Profile";
+import { PaymentGateway } from "./components/PaymentGateway";
+import { SettingsProvider } from "./contexts/SettingsContext";
+import { AuthProvider } from "./contexts/AuthContext";
+import { CompanionProvider } from "./contexts/CompanionContext";
+import { CharacterProvider } from "./contexts/CharacterContext";
+// import { ChatProvider } from "./contexts/ChatContext";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import SetupProfile from "./pages/SetupProfile";
+import AISettings from "./pages/AISettings";
+import Showdown from "./pages/Showdown";
+import MyChats from "./pages/MyChats";
+import Companion from "./pages/Companion";
+import NexusVibe from "./pages/NexusVibe";
+import UserInfoForm from "./pages/UserInfoForm";
 
 function App() {
   const PaymentGatewayWrapper = () => {
     const navigate = useNavigate();
     return (
-      <PaymentGateway 
-        amount={549} 
-        planName="6 Months" 
-        onBack={() => navigate('/profile')} 
-        onSuccess={() => navigate('/')} 
+      <PaymentGateway
+        amount={549}
+        planName="6 Months"
+        onBack={() => navigate("/profile")}
+        onSuccess={() => navigate("/")}
       />
     );
   };
@@ -35,11 +37,13 @@ function App() {
   return (
     <SettingsProvider>
       <AuthProvider>
-        <ChatProvider>
-          <CompanionProvider>
+        {/* <ChatProvider> */}
+        <CompanionProvider>
+          <CharacterProvider>
             <Routes>
               <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/user-info" element={<UserInfoForm />} />
               <Route path="/setup-profile" element={<SetupProfile />} />
               <Route path="/" element={<Home />} />
               <Route path="/ai" element={<AiChat />} />
@@ -49,15 +53,19 @@ function App() {
               <Route path="/settings" element={<Settings />} />
               <Route path="/chat/:characterId" element={<CharacterChat />} />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/upgrade/payment" element={<PaymentGatewayWrapper />} />
+              <Route
+                path="/upgrade/payment"
+                element={<PaymentGatewayWrapper />}
+              />
               <Route path="/group-chats" element={<GroupChat />} />
               <Route path="/group-chat/:groupId" element={<GroupChat />} />
               <Route path="/nexus-vibe" element={<NexusVibe />} />
               <Route path="/nexus-vibe/:groupId" element={<NexusVibe />} />
               <Route path="/my-chats" element={<MyChats />} />
             </Routes>
-          </CompanionProvider>
-        </ChatProvider>
+          </CharacterProvider>
+        </CompanionProvider>
+        {/* </ChatProvider> */}
       </AuthProvider>
     </SettingsProvider>
   );
