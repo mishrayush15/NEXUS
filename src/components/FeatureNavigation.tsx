@@ -51,9 +51,8 @@ useEffect(() => {
 }, []);
 
   return (
-    <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${
-      isVisible ? 'translate-y-0' : 'translate-y-32'
-    }`}>
+    <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${isVisible ? 'translate-y-0' : 'translate-y-32'
+      }`}>
       {/* Controls */}
       <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center space-x-2">
         <button
@@ -71,7 +70,7 @@ useEffect(() => {
       </div>
 
       {/* Navigation Bar */}
-      <div 
+      <div
         className="bg-zinc-800/90 backdrop-blur-sm border border-zinc-700 rounded-2xl p-2 shadow-xl transition-opacity duration-300"
         style={{ opacity }}
       >
@@ -81,18 +80,24 @@ useEffect(() => {
             return (
               <button
                 key={feature.route}
-                onClick={() => navigate(feature.route)}
-                className={`group relative px-4 py-2 rounded-xl transition-all duration-200 ${
-                  isActive
-                    ? 'bg-gold text-zinc-900'
-                    : 'text-zinc-400 hover:bg-zinc-700/50'
-                }`}
+                onClick={() => {
+                  if (feature.name === "Connect") {
+                    // Replace with your ngrok or localhost  URL
+                    window.location.href = "http://localhost:3000";
+                  } else {
+                    navigate(feature.route);
+                  }
+                }}
+                className={`group relative px-4 py-2 rounded-xl transition-all duration-200 ${isActive
+                  ? 'bg-gold text-zinc-900'
+                  : 'text-zinc-400 hover:bg-zinc-700/50'
+                  }`}
               >
                 <div className="flex items-center space-x-2">
                   <feature.icon className="w-5 h-5" />
                   <span className="font-medium">{feature.name}</span>
                 </div>
-                
+
                 {/* Tooltip */}
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-zinc-800 text-zinc-300 text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                   {feature.description}
