@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   ArrowLeft,
   Send,
@@ -21,7 +22,6 @@ import {
   MicOff,
 } from "lucide-react";
 import { characters } from "../utils/characters";
-import { generateResponse } from "../services/ai";
 import { themes } from "../utils/themes";
 import { incrementView } from "../utils/viewsManager";
 
@@ -167,9 +167,15 @@ function CharacterChat() {
     setMessages((prev) => [...prev, { text, sender: "user" }]);
     setIsLoading(true);
 
-    generateResponse(text, characterId!)
+    // Call the backend API using axios
+    axios.post('http://localhost:8000/api/v1/chat/ai/gemini', {
+      question: text,
+      modelName: characterId
+    })
       .then((response) => {
-        setMessages((prev) => [...prev, { text: response, sender: "ai" }]);
+        // Extract the answer field from the response object
+        const aiResponse = response.data.answer || response.data;
+        setMessages((prev) => [...prev, { text: aiResponse, sender: "ai" }]);
       })
       .catch((error) => {
         console.error("Failed to get AI response:", error);
@@ -341,8 +347,13 @@ function CharacterChat() {
           setIsLoading(true);
 
           try {
-            const response = await generateResponse(autoMessage, characterId!);
-            setMessages((prev) => [...prev, { text: response, sender: "ai" }]);
+            const response = await axios.post('http://localhost:8000/api/v1/chat/ai/gemini', {
+              question: autoMessage,
+              modelName: characterId
+            });
+            // Extract the answer field from the response object
+            const aiResponse = response.data.answer || response.data;
+            setMessages((prev) => [...prev, { text: aiResponse, sender: "ai" }]);
           } catch (error) {
             console.error("Failed to get AI response:", error);
             setMessages((prev) => [
@@ -546,8 +557,7 @@ function CharacterChat() {
         <div
           className="absolute inset-0 z-0"
           style={{
-            backgroundImage:
-              "url(https://i.pinimg.com/originals/c1/7c/61/c17c61ce35457f5d10c30d6f2a4a0c3b.gif)",
+            backgroundImage: `url(https://i.pinimg.com/originals/c1/7c/61/c17c61ce35457f5d10c30d6f2a4a0c3b.gif)`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
