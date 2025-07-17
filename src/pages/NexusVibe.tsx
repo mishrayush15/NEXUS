@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef,useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-  MessageSquare, Users, Plus, Search, Send, Home, TrendingUp,
-  Moon, GraduationCap, X, Image, FileVideo, Smile,
+
+import { 
+  MessageSquare, Users, Plus, Search, Send, Home, TrendingUp, 
+  Moon, GraduationCap, X, Image, FileVideo, Smile, 
   Info, MoreHorizontal, Bell, Heart, Repeat, Share2,
-  Sparkles, Zap, Flame, Activity, Star, Clock, Code, Music, UserCircle, ThumbsUp, ThumbsDown, Upload
+  Sparkles, Zap, Flame, Activity, Star, Clock, Code, Music, UserCircle, ThumbsUp, ThumbsDown,Paperclip, Gamepad2
 } from 'lucide-react';
 import { MainNavbar } from '../components/MainNavbar';
 import { FeatureNavigation } from '../components/FeatureNavigation';
@@ -48,6 +49,29 @@ export default function NexusVibe() {
   const [currentView, setCurrentView] = useState<View>("home");
   const [searchQuery, setSearchQuery] = useState("");
   const [showPopularGroups, setShowPopularGroups] = useState(false);
+  const [showThemePopup, setShowThemePopup] = useState(false);
+const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
+const [customTheme, setCustomTheme] = useState<string | null>(null);
+const themePopupRef = useRef<HTMLDivElement>(null);
+useEffect(() => {
+  if (!showThemePopup) return;
+  function handleClick(e: MouseEvent) {
+    if (themePopupRef.current && !themePopupRef.current.contains(e.target as Node)) {
+      setShowThemePopup(false);
+    }
+  }
+  document.addEventListener('mousedown', handleClick);
+  return () => document.removeEventListener('mousedown', handleClick);
+}, [showThemePopup]);
+
+// List of static backgrounds
+const staticThemes = [
+  'https://images.wondershare.com/virtulook/articles/random-background-generator-13.jpg',
+  'https://tse1.mm.bing.net/th/id/OIP.2cNk9zKYv8gIxHAWNEfIGgHaEo?pid=Api&P=0&h=180',
+  'https://wallpaperaccess.com/full/1107091.jpg'
+];
+
+// Set background image on theme change
 
   // Initialize groups with our sample data
   const [groups, setGroups] = useState<ChatRoom[]>(sampleGroups);
@@ -1057,11 +1081,39 @@ export default function NexusVibe() {
   };
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  };
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    };
 
-  return (
-    <div className="flex flex-col h-screen bg-zinc-900 text-white overflow-x-hidden">
+    // State for showing the games popup in the message input
+    const [showGames, setShowGames] = useState(false);
+    const gamePopupRef = React.useRef<HTMLDivElement | null>(null);
+
+    // Optional: Close the popup if clicked outside
+    useEffect(() => {
+    if (!showGames) return;
+    function handleClickOutside(event: MouseEvent) {
+      if (gamePopupRef.current && !gamePopupRef.current.contains(event.target as Node)) {
+      setShowGames(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [showGames]);
+
+    return (
+    <div
+  className="flex flex-col h-screen text-white overflow-x-hidden"
+  style={
+    selectedTheme
+      ? {
+          backgroundImage: `url('${selectedTheme}')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }
+      : { backgroundColor: '#18181b' } // fallback to zinc-900
+  }
+>
       <MainNavbar />
 
       <div className="flex-1 flex overflow-hidden">
@@ -1364,9 +1416,71 @@ export default function NexusVibe() {
                   <button className="p-2 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-300">
                     <Info className="w-5 h-5" />
                   </button>
-                  <button className="p-2 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-300">
-                    <MoreHorizontal className="w-5 h-5" />
-                  </button>
+                  <button
+  className="p-2 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-300 relative"
+  onClick={() => setShowThemePopup((v) => !v)}
+>
+  <MoreHorizontal className="w-5 h-5" />
+  {/* Theme Popup */}
+  {showThemePopup && (
+    <div
+      ref={themePopupRef}
+      className="absolute right-0 mt-2 w-80 bg-zinc-900 border border-zinc-700 rounded-xl shadow-xl p-4 z-50 flex flex-col space-y-4"
+    >
+      <div className="font-semibold text-white mb-2">Choose a Theme</div>
+      <div className="grid grid-cols-3 gap-3">
+        {staticThemes.map((url, idx) => (
+          <button
+            key={idx}
+            className={`rounded-lg overflow-hidden border-2 ${selectedTheme === url ? 'border-gold' : 'border-transparent'} focus:outline-none`}
+            onClick={() => {
+              setSelectedTheme(url);
+              setShowThemePopup(false);
+            }}
+          >
+            <img src={url} alt={`Theme ${idx + 1}`} className="w-full h-16 object-cover" />
+          </button>
+        ))}
+        {/* Custom upload */}
+        <label className={`rounded-lg border-2 flex flex-col items-center justify-center cursor-pointer h-16 ${selectedTheme === customTheme ? 'border-gold' : 'border-zinc-700'} bg-zinc-800 hover:bg-zinc-700 transition-colors`}>
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={e => {
+              if (e.target.files && e.target.files[0]) {
+                const url = URL.createObjectURL(e.target.files[0]);
+                setCustomTheme(url);
+                setSelectedTheme(url);
+                setShowThemePopup(false);
+                 console.log('Custom theme URL:', url);
+              }
+            }}
+          />
+          <Image className="w-6 h-6 text-zinc-400 mb-1" />
+          <span className="text-xs text-zinc-400">Custom</span>
+        </label>
+      </div>
+      {/* Preview for custom theme */}
+      {selectedTheme === customTheme && customTheme && (
+        <div className="mt-2">
+          <div className="text-xs text-zinc-400 mb-1">Preview:</div>
+          <img src={customTheme} alt="Custom Theme Preview" className="w-full h-20 object-cover rounded-lg border border-zinc-700" />
+        </div>
+      )}
+      <button
+        className="mt-2 px-4 py-2 rounded-lg bg-zinc-800 text-zinc-300 hover:bg-zinc-700 transition-colors"
+        onClick={() => {
+          setSelectedTheme(null);
+          setCustomTheme(null);
+          setShowThemePopup(false);
+        }}
+      >
+        Reset to Default
+      </button>
+    </div>
+  )}
+</button>
                 </div>
               </div>
 
@@ -1390,12 +1504,7 @@ export default function NexusVibe() {
                       key={msg.id}
                       className={`flex ${msg.sender === currentUser.name ? 'justify-end' : 'justify-start'}`}
                     >
-                      <div
-                        className={`max-w-[80%] flex ${msg.sender === currentUser.name
-                          ? 'flex-row-reverse'
-                          : 'flex-row'
-                          }`}
-                      >
+                      <div className={`max-w-[75%] flex ${msg.sender === currentUser.name ? 'flex-row-reverse' : 'flex-row'}`}>
                         {msg.sender !== currentUser.name && (
                           <div className="flex-shrink-0 mr-3">
                             <div className="w-9 h-9 rounded-full overflow-hidden bg-zinc-800">
@@ -1453,54 +1562,70 @@ export default function NexusVibe() {
               </div>
 
               {/* Message Input */}
-              <div className="border-t border-zinc-800 p-3">
-                <form
-                  onSubmit={handleSendMessage}
-                  className="flex items-center space-x-2">
-                  <div className="flex items-center space-x-2">
-                    <button
-                      type="button"
-                      className="p-2 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-zinc-300"
-                    >
-                      <Plus className="w-5 h-5" />
-                    </button>
-                    <button
-                      type="button"
-                      className="p-2 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-zinc-300"
-                    >
-                      <Image className="w-5 h-5" />
-                    </button>
-                    <button
-                      type="button"
-                      className="p-2 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-zinc-300"
-                    >
-                      <FileVideo className="w-5 h-5" />
-                    </button>
-                  </div>
-                  <input
-                    type="text"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder={`Message in #${selectedGroup.name}...`}
-                    className="flex-1 py-2 px-3 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-300 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
-                  />
-                  <button
-                    type="button"
-                    className="p-2 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-zinc-300">
-                    <Smile className="w-5 h-5" />
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={!message.trim()}
-                    className={`p-2 rounded-full ${message.trim()
-                      ? 'bg-gold hover:bg-gold/90 text-zinc-900'
-                      : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
-                      }`}
-                  >
-                    <Send className="w-5 h-5" />
-                  </button>
-                </form>
-              </div>
+               <div className="border-t border-zinc-800 p-3">
+    <form onSubmit={handleSendMessage} className="flex items-center space-x-2 relative">
+      {/* Game icon popup */}
+      {showGames && (
+        <div
+          ref={gamePopupRef}
+          className="absolute bottom-14 left-0 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg p-4 w-64 grid grid-cols-5 gap-3 z-20"
+        >
+          {[
+            "🎲", "🎮", "🕹️", "♟️", "🧩",
+            "🏎️", "⚽", "🏀", "🀄", "🧸"
+          ].map((icon, idx) => (
+            <button
+              key={idx}
+              className="w-10 h-10 flex items-center justify-center rounded hover:bg-zinc-700 text-2xl"
+              type="button"
+              tabIndex={0}
+            >
+              {icon}
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="flex items-center space-x-2">
+        {/* Attachment icon */}
+        <label className="cursor-pointer flex items-center">
+          <input
+            type="file"
+            className="hidden"
+            // TODO: Add your file upload handler here
+          />
+          <Paperclip className="w-5 h-5 text-zinc-400 hover:text-gold transition-colors" />
+        </label>
+        {/* Gaming console icon */}
+        <button
+          type="button"
+          onClick={() => setShowGames((v) => !v)}
+          className="flex items-center"
+          tabIndex={0}
+        >
+          <Gamepad2 className="w-5 h-5 text-zinc-400 hover:text-gold transition-colors" />
+        </button>
+      </div>
+      <input
+        type="text"
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder={`Message in #${selectedGroup.name}...`}
+        className="flex-1 py-2 px-3 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-300 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+      />
+      <button
+        type="submit"
+        disabled={!message.trim()}
+        className={`p-2 rounded-full ${
+          message.trim()
+            ? 'bg-gold hover:bg-gold/90 text-zinc-900'
+            : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
+        }`}
+      >
+        <Send className="w-5 h-5" />
+      </button>
+    </form>
+  </div>
+             
             </>
           ) : currentView === 'foryou' ? (
             // --- FOR YOU (EXPLORE) VIEW ---

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useSettings } from "../contexts/SettingsContext"; // If not already imported
 import {
   Bot,
   Search,
@@ -241,6 +242,16 @@ function AiChat() {
   const [bannerVisible, setBannerVisible] = useState(true);
   const [activeGenre, setActiveGenre] = useState<string | null>(null);
   const [showGenres, setShowGenres] = useState(false);
+  const { incognitoMode } = useSettings();
+  const accentText = incognitoMode ? "text-orange-500" : "text-gold";
+const accentBg = incognitoMode ? "bg-orange-500/10" : "bg-gold/10";
+const accentBorder = incognitoMode ? "border-orange-500/20" : "border-gold/20";
+const accentGradient = incognitoMode
+  ? "from-orange-500/0 via-orange-500/10 to-orange-500/0"
+  : "from-gold/0 via-gold/10 to-gold/0";
+const mainBg = incognitoMode ? "bg-black" : "bg-zinc-900";
+const sideMenuBg = incognitoMode ? "bg-black/80" : "bg-zinc-900/50";
+const borderColor = incognitoMode ? "border-black" : "border-zinc-800";
 
   // Auto-rotate announcements every 5 seconds
   useEffect(() => {
@@ -674,34 +685,57 @@ function AiChat() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-900">
-      {/* Side Menu */}
-      <nav className="fixed left-0 top-0 h-screen w-56 backdrop-blur-sm border-r border-zinc-800 bg-zinc-900/50 overflow-y-auto">
-        <div className="p-6">
-          <div className="flex items-center space-x-3 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center border border-gold/20 relative overflow-hidden group">
-              <span className="text-2xl font-bold text-gold group-hover:scale-110 transition-transform">
-                N
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-gold/0 via-gold/10 to-gold/0 animate-shimmer" />
-            </div>
-            <span className="text-xl font-bold text-gold">Nexus</span>
-          </div>
-
+    <div className={`min-h-screen ${mainBg}`}>
+  {/* Side Menu */}
+  <nav className={`fixed left-0 top-0 h-screen w-56 backdrop-blur-sm ${borderColor} ${sideMenuBg} overflow-y-auto`}>
+    <div className="p-6">
+      <div className="flex items-center space-x-3 mb-8">
+        <div className={`w-10 h-10 rounded-xl ${accentBg} flex items-center justify-center border ${accentBorder} relative overflow-hidden group`}>
+          <span className={`text-2xl font-bold ${accentText} group-hover:scale-110 transition-transform`}>
+            N
+          </span>
+          <div className={`absolute inset-0 bg-gradient-to-r ${accentGradient} animate-shimmer`} />
+        </div>
+        <span className={`text-xl font-bold ${accentText}`}>Nexus</span>
+      </div>
           <div className="space-y-2 mb-6">
             {activeMenuItems.slice(0, 5).map((item) => (
-              <button
-                key={item.label}
-                onClick={() => handleMenuClick(item.label)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                  item.active
-                    ? "bg-gold text-zinc-900"
-                    : "text-zinc-400 hover:bg-zinc-700/50"
-                }`}>
-                <item.icon className="w-5 h-5" />
-                <span className="font-medium">{item.label}</span>
-              </button>
-            ))}
+  item.label === "Home" ? (
+    <button
+      key={item.label}
+      onClick={() => handleMenuClick(item.label)}
+      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+        item.active
+          ? incognitoMode
+            ? `${accentBg.replace('/10', '')} text-white`
+            : `bg-gold text-black`
+          : `text-zinc-400 hover:${sideMenuBg}`
+      }`}
+    >
+      <item.icon className={`w-5 h-5 ${
+        item.active
+          ? incognitoMode
+            ? "text-white"
+            : "text-black"
+          : ""
+      }`} />
+      <span className="font-medium">{item.label}</span>
+    </button>
+  ) : (
+    <button
+      key={item.label}
+      onClick={() => handleMenuClick(item.label)}
+      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+        item.active
+          ? `${accentBg.replace('/10', '')} text-white`
+          : `text-zinc-400 hover:${sideMenuBg}`
+      }`}
+    >
+      <item.icon className={`w-5 h-5 ${item.active ? accentText : ""}`} />
+      <span className="font-medium">{item.label}</span>
+    </button>
+  )
+))}
 
             {/* Leaderboard Button */}
             <button
@@ -729,102 +763,113 @@ function AiChat() {
       </nav>
 
       {/* Header */}
-      <header className="border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-sm fixed left-56 right-0 top-0 z-50">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate("/")}
-                className="text-gold hover:text-gold/80 transition-colors">
-                <ArrowLeft className="w-6 h-6" />
-              </button>
-              <div className="flex items-center space-x-2">
-                <Bot className="w-8 h-8 text-gold" />
-                <span className="text-2xl font-bold text-gold">
-                  {showFavorites ? "My Favorites" : "Nexus AI"}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="relative w-96">
-                <Search className="absolute left-3 top-2.5 text-zinc-400 w-5 h-5" />
+     <header className={`border-b ${borderColor} ${mainBg}/50 backdrop-blur-sm fixed left-56 right-0 top-0 z-50`}>
+  <div className="container mx-auto px-6 py-4">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center space-x-4">
+        <button
+          onClick={() => navigate("/")}
+          className={`${accentText} hover:${incognitoMode ? "text-orange-400" : "text-gold/80"} transition-colors`}
+        >
+          <ArrowLeft className="w-6 h-6" />
+        </button>
+        <div className="flex items-center space-x-2">
+          <Bot className={`w-8 h-8 ${accentText}`} />
+          <span className={`text-2xl font-bold ${accentText}`}>
+            {showFavorites ? "My Favorites" : "Nexus AI"}
+          </span>
+        </div>
+      </div>
+      <div className="flex items-center space-x-3">
+        <div className="relative w-96">
+          <Search className="absolute left-3 top-2.5 text-zinc-400 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Search AI..."
+            className={`w-full pl-10 pr-4 py-2 rounded-lg ${sideMenuBg} border ${borderColor} text-white placeholder-zinc-400 focus:outline-none focus:${accentBorder}`}
+          />
+        </div>
+        {!showFavorites && (
+          <div className="relative">
+            <button
+              onClick={() => setFiltersExpanded(!filtersExpanded)}
+              className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
+                filtersExpanded
+                  ? incognitoMode
+                    ? "bg-orange-500 text-white hover:bg-orange-500/90"
+                    : "bg-gold text-black hover:bg-gold/90 hover:text-black"
+                  : incognitoMode
+                    ? `${sideMenuBg} text-zinc-200 hover:bg-black/80`
+                    : "bg-zinc-800 text-zinc-200 hover:bg-zinc-700/80"
+              }`}
+            >
+              <Filter className="w-5 h-5" />
+              <span>Filters</span>
+              {filtersExpanded ? (
+                <ChevronUp className="w-4 h-4 ml-1" />
+              ) : (
+                <ChevronDown className="w-4 h-4 ml-1" />
+              )}
+            </button>
+            {filtersExpanded && (
+              <div className={`absolute top-full left-0 mt-1 w-64 p-4 ${sideMenuBg} border ${borderColor} rounded-lg shadow-lg max-h-60 overflow-y-auto`}>
                 <input
                   type="text"
-                  placeholder="Search AI..."
-                  className="w-full pl-10 pr-4 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-400 focus:outline-none focus:border-gold"
+                  placeholder="Search tags..."
+                  value={tagSearch}
+                  onChange={(e) => setTagSearch(e.target.value)}
+                  className={`w-full mb-2 px-3 py-1 rounded bg-black border ${borderColor} text-white focus:outline-none`}
                 />
-              </div>
-              {!showFavorites && (
-                <div className="relative">
-                  <button
-                    onClick={() => setFiltersExpanded(!filtersExpanded)}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
-                      filtersExpanded
-                        ? "bg-gold text-zinc-900 hover:bg-gold/90"
-                        : "bg-zinc-800 text-zinc-200 hover:bg-zinc-700/80"
-                    }`}>
-                    <Filter className="w-5 h-5" />
-                    <span>Filters</span>
-                    {filtersExpanded ? (
-                      <ChevronUp className="w-4 h-4 ml-1" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4 ml-1" />
-                    )}
-                  </button>
-                  {filtersExpanded && (
-                    <div className="absolute top-full left-0 mt-1 w-64 p-4 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                      <input
-                        type="text"
-                        placeholder="Search tags..."
-                        value={tagSearch}
-                        onChange={(e) => setTagSearch(e.target.value)}
-                        className="w-full mb-2 px-3 py-1 rounded bg-zinc-700 border border-zinc-600 text-white focus:outline-none"
-                      />
-                      <div className="flex flex-col space-y-1">
-                        {popularTags
-                          .filter((tag) =>
-                            tag.toLowerCase().includes(tagSearch.toLowerCase())
-                          )
-                          .map((tag) => (
-                            <div
-                              key={tag}
-                              className="flex items-center justify-between">
-                              <label className="flex items-center space-x-2">
-                                <input
-                                  type="checkbox"
-                                  checked={selectedTags.includes(tag)}
-                                  onChange={() => toggleTag(tag)}
-                                  className="w-4 h-4 text-gold bg-zinc-800 border border-zinc-700 rounded focus:ring-gold"
-                                />
-                                <span className="text-white text-sm">
-                                  {tag}
-                                </span>
-                              </label>
-                              {selectedTags.includes(tag) && (
-                                <button
-                                  onClick={() => toggleTag(tag)}
-                                  className="text-zinc-400 hover:text-gold">
-                                  <Minus className="w-4 h-4" />
-                                </button>
-                              )}
-                            </div>
-                          ))}
+                <div className="flex flex-col space-y-1">
+                  {popularTags
+                    .filter((tag) =>
+                      tag.toLowerCase().includes(tagSearch.toLowerCase())
+                    )
+                    .map((tag) => (
+                      <div
+                        key={tag}
+                        className="flex items-center justify-between">
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedTags.includes(tag)}
+                            onChange={() => toggleTag(tag)}
+                            className={`w-4 h-4 ${accentText} bg-black border ${borderColor} rounded focus:ring-orange-500`}
+                          />
+                          <span className="text-white text-sm">
+                            {tag}
+                          </span>
+                        </label>
+                        {selectedTags.includes(tag) && (
+                          <button
+                            onClick={() => toggleTag(tag)}
+                            className={`${accentText} hover:text-orange-400`}>
+                            <Minus className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
-                    </div>
-                  )}
+                    ))}
                 </div>
-              )}
-              <button
-                onClick={() => setShowPricingModal(true)}
-                className="flex items-center space-x-2 px-3 py-2 bg-gold text-zinc-900 rounded-lg hover:bg-gold/90 transition-colors font-medium">
-                <Crown className="w-5 h-5" />
-                <span>Upgrade</span>
-              </button>
-              <ProfileButton />
-            </div>
+              </div>
+            )}
           </div>
-        </div>
-      </header>
+        )}
+        <button
+          onClick={() => setShowPricingModal(true)}
+          className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors font-medium ${
+            incognitoMode
+              ? "bg-orange-500 text-white hover:bg-orange-500/90"
+              : "bg-gold text-black hover:bg-gold/90 hover:text-black"
+          }`}
+        >
+          <Crown className={`w-5 h-5 ${incognitoMode ? "text-white" : "text-black"}`} />
+          <span>Upgrade</span>
+        </button>
+        <ProfileButton />
+      </div>
+    </div>
+  </div>
+</header>
 
       {/* Main Content */}
       <main className="ml-56 px-6 pt-24 pb-12">
@@ -1068,35 +1113,47 @@ function AiChat() {
 
                       {/* Content */}
                       <div className="absolute inset-0 flex items-center z-20">
-                        <div className="container mx-auto px-12">
-                          <div className="max-w-lg">
-                            <div className="mb-3">
-                              <span className="px-2 py-1 bg-gold text-xs font-bold text-zinc-900 rounded">
-                                {announcement.tagline}
-                              </span>
-                            </div>
-                            <h2 className="text-5xl font-bold text-white mb-4 leading-tight">
-                              {announcement.title}
-                            </h2>
-                            <p className="text-lg text-white/90 mb-8 max-w-md">
-                              {announcement.description}
-                            </p>
-                            <div>
-                              <button
-                                onClick={() => {
-                                  if (announcement.ctaLink === "#upgrade") {
-                                    setShowPricingModal(true);
-                                  } else {
-                                    navigate(announcement.ctaLink);
-                                  }
-                                }}
-                                className="px-8 py-3 bg-gold hover:bg-gold/90 text-zinc-900 rounded font-bold text-lg transition-colors">
-                                {announcement.cta}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+  <div className="container mx-auto px-12">
+    <div className="max-w-lg">
+      <div className="mb-3">
+        <span
+  className={`px-2 py-1 rounded text-xs font-bold ${
+    incognitoMode
+      ? "bg-orange-500 text-white"
+      : "bg-gold text-zinc-900"
+  }`}
+>
+  {announcement.tagline}
+</span>
+      </div>
+      <h2 className="text-5xl font-bold text-white mb-4 leading-tight">
+        {announcement.title}
+      </h2>
+      <p className="text-lg text-white/90 mb-8 max-w-md">
+        {announcement.description}
+      </p>
+      <div>
+        <button
+          onClick={() => {
+            if (announcement.ctaLink === "#upgrade") {
+              setShowPricingModal(true);
+            } else {
+              navigate(announcement.ctaLink);
+            }
+          }}
+          className={`px-8 py-3 rounded font-bold text-lg transition-colors flex items-center space-x-2 ${
+            incognitoMode
+              ? "bg-orange-500 text-white hover:bg-orange-500/90"
+              : "bg-gold text-zinc-900 hover:bg-gold/90 hover:text-black"
+          }`}
+        >
+          <Crown className={`w-5 h-5 ${incognitoMode ? "text-white" : "text-black"}`} />
+          <span>{announcement.cta}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
                     </div>
                   ))}
                 </div>
@@ -1104,25 +1161,28 @@ function AiChat() {
 
               {/* Popular Tags Horizontal Scroll */}
               <div className="mb-8">
-                <h2 className="text-xl font-bold text-white mb-4">
-                  Popular Tags
-                </h2>
-                <div className="flex space-x-2 pb-2 overflow-x-auto scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-zinc-800">
-                  {popularTags.slice(0, 12).map((tag) => (
-                    <button
-                      key={tag}
-                      onClick={() => toggleTag(tag)}
-                      className={`px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
-                        selectedTags.includes(tag)
-                          ? "bg-gold text-zinc-900 font-medium"
-                          : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
-                      }`}>
-                      {tag} ({tagCounts[tag]})
-                    </button>
-                  ))}
-                </div>
-              </div>
-
+  <h2 className="text-xl font-bold text-white mb-4">Popular Tags</h2>
+  <div
+    className={`flex space-x-2 pb-2 overflow-x-auto scrollbar-thin scrollbar-track-zinc-800
+      ${incognitoMode ? "scrollbar-thumb-orange-500" : "scrollbar-thumb-[#d4af37]"}
+    `}
+  >
+    {popularTags.slice(0, 12).map((tag) => (
+      <button
+        key={tag}
+        onClick={() => toggleTag(tag)}
+        className={`px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
+          selectedTags.includes(tag)
+            ? "bg-gold text-zinc-900 font-medium"
+            : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+        }`}
+      >
+        {tag} ({tagCounts[tag]})
+      </button>
+    ))}
+  </div>
+</div>
+ 
               {/* Hot Characters Section */}
               <div className="mb-12">
                 <div className="flex items-center mb-5">
@@ -1485,14 +1545,20 @@ function AiChat() {
 
                           <div className="mt-auto pt-1">
                             <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate(`/chat/${slug}`);
-                              }}
-                              className="flex items-center justify-center space-x-2 px-3 py-2 bg-gold text-zinc-900 rounded-lg hover:bg-gold/90 transition-all w-full duration-200 text-sm">
-                              <MessageSquare className="w-4 h-4" />
-                              <span>Chat Now</span>
-                            </button>
+  onClick={(e) => {
+    e.stopPropagation();
+    navigate(`/chat/${slug}`);
+  }}
+  className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-all duration-200 font-medium group ${
+    incognitoMode
+      ? "bg-orange-500 text-white hover:bg-orange-400/90"
+      : "bg-gold text-zinc-900 hover:bg-gold/90"
+  }`}
+>
+  <MessageSquare className="w-5 h-5 transition-transform group-hover:scale-110" />
+  <span>Chat Now</span>
+</button>
+
                           </div>
                         </div>
                       </div>

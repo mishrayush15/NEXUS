@@ -21,16 +21,17 @@
 // } from 'firebase/firestore';
 // import type { QuerySnapshot, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 
-// // Define Room and Message types
-// export interface Room {
-//   id: string;
-//   name: string;
-//   description: string;
-//   category: string;
-//   members: string[]; // array of user IDs
-//   campusTag?: string;
-//   trendingScore?: number;
-// }
+// Define Room and Message types
+export interface Room {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  members: string[]; // array of user IDs
+  campusTag?: string;
+  trendingScore?: number;
+  messages: Message[]; 
+}
 
 // export interface Message {
 //   id: string;

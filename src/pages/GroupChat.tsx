@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { MessageSquare, Users, Plus, Search, Send, Home, TrendingUp, Compass, Moon, GraduationCap } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+
+import { MessageSquare, Users, Plus, Search, Send, Home, TrendingUp, Compass, Moon, GraduationCap, Paperclip, Gamepad2 } from 'lucide-react';
 import { CreateGroup } from '../components/CreateGroup';
 import { useChat } from '../contexts/ChatContext';
 import type { Room as ChatRoom, Message as ChatMessage } from '../services/chat';
@@ -12,12 +13,13 @@ export default function GroupChat() {
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
   const [currentView, setCurrentView] = useState<View>('home');
   const [searchQuery, setSearchQuery] = useState('');
+   const [showGames, setShowGames] = useState(false);
   const [groups, setGroups] = useState<ChatRoom[]>([
     {
       id: '1',
       name: 'Anime Enthusiasts',
       description: 'Discuss your favorite anime and manga',
-      members: 128,
+      members: ['user1', 'user2', 'user3'],
       category: 'Anime',
       messages: []
     },
@@ -25,7 +27,7 @@ export default function GroupChat() {
       id: '2',
       name: 'Tech Talk',
       description: 'Latest in technology and programming',
-      members: 256,
+      members: ['user1', 'user4', 'user5'],
       category: 'Technology',
       messages: []
     },
@@ -33,11 +35,25 @@ export default function GroupChat() {
       id: '3',
       name: 'Movie Buffs',
       description: 'Movie reviews and discussions',
-      members: 89,
+      members: ['user2', 'user6'],
       category: 'Movies',
       messages: []
     }
   ]);
+    const gamePopupRef = React.useRef<HTMLDivElement>(null);
+    useEffect(() => {
+    if (!showGames) return;
+    const handleClick = (e: MouseEvent) => {
+      if (
+        gamePopupRef.current &&
+        !gamePopupRef.current.contains(e.target as Node)
+      ) {
+        setShowGames(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [showGames]);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,9 +61,10 @@ export default function GroupChat() {
 
     const newMessage: ChatMessage = {
       id: Date.now().toString(),
+      roomId: selectedGroup.id,
       content: message,
-      sender: 'You',
-      timestamp: new Date()
+      senderId: 'You',
+      timestamp: Date.now()
     };
 
     setSelectedGroup({
@@ -63,7 +80,7 @@ export default function GroupChat() {
       name: groupData.name,
       description: groupData.description,
       category: groupData.category,
-      members: 1,
+      members: ['You'],
       messages: []
     };
 
@@ -77,7 +94,7 @@ export default function GroupChat() {
     }
     if (currentView === 'trending') {
       // Sort by member count
-      return group.members > 100;
+      return group.members.length > 100;
     }
     if (currentView === 'discover') {
       // Filter based on search query
@@ -140,7 +157,7 @@ export default function GroupChat() {
                       <span className="text-sm text-zinc-500">{group.category}</span>
                       <div className="flex items-center space-x-2">
                         <Users className="w-4 h-4 text-zinc-400" />
-                        <span className="text-sm text-zinc-400">{group.members}</span>
+                        <span className="text-sm text-zinc-400">{group.members.length}</span>
                       </div>
                     </div>
                   </button>
@@ -311,13 +328,13 @@ export default function GroupChat() {
                   {selectedGroup.messages.map((msg) => (
                     <div key={msg.id} className="flex items-start space-x-3">
                       <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white">
-                        {msg.sender[0]}
+                        {msg.senderId[0]}
                       </div>
                       <div>
                         <div className="flex items-center space-x-2">
-                          <span className="font-medium text-white">{msg.sender}</span>
+                          <span className="font-medium text-white">{msg.senderId}</span>
                           <span className="text-sm text-zinc-500">
-                            {msg.timestamp.toLocaleTimeString()}
+                            {new Date(msg.timestamp).toLocaleTimeString()}
                           </span>
                         </div>
                         <p className="text-zinc-300">{msg.content}</p>
@@ -328,9 +345,49 @@ export default function GroupChat() {
               )}
             </div>
 
-            {/* Message Input */}
-            <form onSubmit={handleSendMessage} className="p-4 border-t border-zinc-800">
-              <div className="flex space-x-4">
+             {/* Message Input */}
+            <form onSubmit={handleSendMessage} className="p-4 border-t border-zinc-800 relative">
+              {/* Game icon popup */}
+              {showGames && (
+                <div
+                  ref={gamePopupRef}
+                  className="absolute bottom-16 left-0 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg p-4 w-64 grid grid-cols-5 gap-3 z-20"
+                >
+                  {[
+                    "🎲", "🎮", "🕹️", "♟️", "🧩",
+                    "🏎️", "⚽", "🏀", "🀄", "🧸"
+                  ].map((icon, idx) => (
+                    <button
+                      key={idx}
+                      className="w-10 h-10 flex items-center justify-center rounded hover:bg-zinc-700 text-2xl"
+                      type="button"
+                      tabIndex={0}
+                    >
+                      {icon}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="flex space-x-4 items-center">
+                {/* Attachment icon */}
+                <label className="cursor-pointer flex items-center">
+                  <input
+                    type="file"
+                    className="hidden"
+                    // TODO: Add your file upload handler here
+                  />
+                  <Paperclip className="w-5 h-5 text-zinc-400 hover:text-purple-400 transition-colors" />
+                </label>
+                {/* Gaming console icon */}
+                <button
+                  type="button"
+                  onClick={() => setShowGames((v) => !v)}
+                  className="flex items-center"
+                  tabIndex={0}
+                >
+                  <Gamepad2 className="w-5 h-5 text-zinc-400 hover:text-purple-400 transition-colors" />
+                </button>
+                {/* Message input */}
                 <input
                   type="text"
                   value={message}
@@ -351,7 +408,6 @@ export default function GroupChat() {
           renderMainContent()
         )}
       </div>
-
       <CreateGroup
         isOpen={isCreateGroupOpen}
         onClose={() => setIsCreateGroupOpen(false)}
@@ -360,3 +416,5 @@ export default function GroupChat() {
     </div>
   );
 }
+
+

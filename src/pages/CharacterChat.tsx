@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getAuth } from "firebase/auth";
-import axios from "axios";
+import { useSettings } from "../contexts/SettingsContext"; // ✅ add this
+
 import {
   ArrowLeft,
   Send,
@@ -66,6 +66,7 @@ function CharacterChat() {
   const { characterId } = useParams<{ characterId: string }>();
   const { characters, loading: loadingCharacters } = useCharacterContext();
   const navigate = useNavigate();
+  const { incognitoMode } = useSettings();
   const [message, setMessage] = useState("");
   const [showInfo, setShowInfo] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -86,6 +87,15 @@ function CharacterChat() {
 
   // Add this useRef at the top of your component with other refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const pageBg = incognitoMode ? "bg-black" : "bg-zinc-900"; // main background
+const sectionBg = incognitoMode ? "bg-black/80" : "bg-zinc-800/90"; // cards/sections
+const borderColor = incognitoMode ? "border-black" : "border-zinc-700"; // borders
+const accentText = incognitoMode ? "text-orange-500" : "text-gold";
+const accentBg = incognitoMode ? "bg-orange-500/10" : "bg-gold/10";
+const accentBorder = incognitoMode ? "border-orange-500/20" : "border-gold/20";
+const gradientHeader = incognitoMode
+  ? "bg-gradient-to-b from-black via-zinc-900 to-black"
+  : "bg-zinc-800";
 
   // Add this useEffect to handle auto-scrolling
   useEffect(() => {
@@ -516,13 +526,15 @@ function CharacterChat() {
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (file && file.type.startsWith("image/")) {
       // Create a preview message for the file
       const fileMessage = `[File: ${file.name}] - ${(file.size / 1024).toFixed(
         2
       )}KB`;
       setMessages((prev) => [...prev, { text: fileMessage, sender: "user" }]);
-
+  const imageUrl = URL.createObjectURL(file);
+    themes["custom-background"].backgroundImage = imageUrl;
+    setActiveTheme("custom-background");
       // Clear the input
       event.target.value = "";
     }
@@ -545,87 +557,17 @@ function CharacterChat() {
     } as React.CSSProperties;
   };
 
-  if (loadingCharacters) {
-    return <FullPageLoader />;
+  function handleCustomBackgroundUpload(event: React.ChangeEvent<HTMLInputElement>): void {
+    const file = event.target.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      const imageUrl = URL.createObjectURL(file);
+      themes["custom-background"].backgroundImage = imageUrl;
+      setActiveTheme("custom-background");
+      setShowThemes(false);
+      // Optionally clear the input value
+      event.target.value = "";
+    }
   }
-
-  const formatMessagesForBackend = (
-    rawMessages: { text: string; sender: "user" | "ai" }[]
-  ) => {
-    const pairedMessages = [];
-
-    for (let i = 0; i < rawMessages.length; i += 2) {
-      const userMsg = rawMessages[i];
-      const aiMsg = rawMessages[i + 1];
-
-      if (
-        userMsg &&
-        aiMsg &&
-        userMsg.sender === "user" &&
-        aiMsg.sender === "ai"
-      ) {
-        pairedMessages.push({
-          user: userMsg.text,
-          ai: aiMsg.text,
-          timestamp: Date.now(), // or use individual message timestamps if available
-        });
-      }
-    }
-
-    return pairedMessages;
-  };
-
-  const sendChatToBackend = async ({
-    userId,
-    characterId,
-    messages,
-  }: {
-    userId: string;
-    characterId: string;
-    messages: {
-      user: string;
-      ai: string;
-      timestamp: number;
-    }[];
-  }) => {
-    const payload = {
-      user_id: userId,
-      character_id: characterId,
-      messages,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
-    try {
-      const response = await axios.post(
-        "http://localhost:8000/api/v1/chat/ai/save-chat",
-        payload
-      );
-      console.log("Chat saved:", response.data);
-    } catch (error) {
-      console.error("Failed to save chat:", error);
-    }
-  };
-
-  const handleBackClick = async () => {
-    const auth = getAuth();
-    const user = auth.currentUser;
-
-    if (!user || !characterId || messages.length < 2) {
-      navigate("/ai");
-      return;
-    }
-
-    const formattedMessages = formatMessagesForBackend(messages);
-
-    await sendChatToBackend({
-      userId: user.uid,
-      characterId,
-      messages: formattedMessages,
-    });
-
-    navigate("/ai");
-  };
 
   return (
     <div
@@ -647,22 +589,26 @@ function CharacterChat() {
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
-            opacity: 0.15,
+            //opacity: 0.15,
           }}
         />
 
         {/* Gradient Overlay */}
         <div
-          className="absolute inset-0 z-0"
-          style={{
-            background: `linear-gradient(to bottom, ${
-              themes[activeTheme]?.colors.surface || "#27272a"
-            }cc, ${themes[activeTheme]?.colors.background || "#18181b"}ee)`,
-            borderRight: `1px solid ${
-              themes[activeTheme]?.colors.border || "#27272a"
-            }`,
-          }}
-        />
+  className="absolute inset-0 z-0"
+  style={{
+    background: incognitoMode
+      ? "linear-gradient(to bottom, #000000cc, #000000ee)" // All black gradient
+      : `linear-gradient(to bottom, ${
+          themes[activeTheme]?.colors.surface || "#27272a"
+        }cc, ${themes[activeTheme]?.colors.background || "#18181b"}ee)`,
+    borderRight: `1px solid ${
+      incognitoMode
+        ? "#000000" // Black border
+        : themes[activeTheme]?.colors.border || "#27272a"
+    }`,
+  }}
+/>
         <div className="p-6 space-y-6 h-full overflow-y-auto relative z-10">
           <div className="flex items-center space-x-3">
             <div className="relative w-16 h-16 rounded-full overflow-hidden">
@@ -674,22 +620,23 @@ function CharacterChat() {
             </div>
             <div>
               <h2 className="text-xl font-bold text-white">{character.name}</h2>
-              <p className="text-gold">{character.role}</p>
+               <p className={accentText}>{character.role}</p>
             </div>
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-gold mb-3">About</h3>
+           <h3 className={`text-lg font-semibold ${accentText} mb-3`}>About</h3>
+
             <p className="text-zinc-300">{character.personality.background}</p>
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-gold mb-3">Tags</h3>
+          
             <div className="flex flex-wrap gap-2">
               {character.tags?.map((tag) => (
                 <span
                   key={tag}
-                  className="px-3 py-1 bg-gold/20 text-gold rounded-full text-sm">
+                 className={`px-3 py-1 ${accentBg} ${accentText} rounded-full text-sm`}>
                   {tag}
                 </span>
               ))}
@@ -697,9 +644,9 @@ function CharacterChat() {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-gold mb-3">
-              Personality Traits
-            </h3>
+            <h3 className={`text-lg font-semibold ${accentText} mb-3`}>
+        Personality Traits
+      </h3>
             <div className="flex flex-wrap gap-2">
               {character.personality.traits.map((trait) => (
                 <span
@@ -712,7 +659,9 @@ function CharacterChat() {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-gold mb-3">Interests</h3>
+           <h3 className={`text-lg font-semibold ${accentText} mb-3`}>
+        Interests
+      </h3>
             <div className="flex flex-wrap gap-2">
               {character.personality.interests.map((interest) => (
                 <span
@@ -725,9 +674,9 @@ function CharacterChat() {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-gold mb-3">
-              Unique Quirks
-            </h3>
+            <h3 className={`text-lg font-semibold ${accentText} mb-3`}>
+        Unique Quirks
+      </h3>
             <ul className="list-disc list-inside space-y-2 text-zinc-300">
               {character.personality.quirks.map((quirk) => (
                 <li key={quirk}>{quirk}</li>
@@ -736,9 +685,9 @@ function CharacterChat() {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-gold mb-3">
-              Communication Style
-            </h3>
+           <h3 className={`text-lg font-semibold ${accentText} mb-3`}>
+        Communication Style
+      </h3>
             <div className="space-y-3">
               <div>
                 <p className="text-zinc-400 text-sm">Emotional Style</p>
@@ -777,10 +726,15 @@ function CharacterChat() {
           <div className="px-6 py-4 flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button
-                onClick={handleBackClick}
-                className="text-gold hover:text-gold/80 transition-colors">
-                <ArrowLeft className="w-6 h-6" />
-              </button>
+        onClick={() => navigate("/ai")}
+        className={`transition-colors ${
+          incognitoMode
+            ? "text-orange-500 hover:text-orange-400"
+            : "text-gold hover:text-gold/80"
+        }`}
+      >
+        <ArrowLeft className="w-6 h-6" />
+      </button>
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 rounded-full overflow-hidden">
                   <img
@@ -790,22 +744,33 @@ function CharacterChat() {
                   />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-white">
-                    {character.name}
-                  </h1>
-                  <p className="text-sm text-gold">{character.role}</p>
-                </div>
+          <h1 className="text-xl font-bold text-white">
+            {character.name}
+          </h1>
+          <p
+            className={`text-sm ${
+              incognitoMode ? "text-orange-500" : "text-gold"
+            }`}
+          >
+            {character.role}
+          </p>
+        </div>
               </div>
             </div>
 
             <div className="flex items-center space-x-3">
               <button
-                onClick={() => setShowInfo(!showInfo)}
-                className={`icon-button ${
-                  showInfo ? "text-gold" : "text-zinc-400"
-                }`}>
-                <Info className="w-5 h-5" />
-              </button>
+        onClick={() => setShowInfo(!showInfo)}
+        className={`icon-button ${
+          showInfo
+            ? incognitoMode
+              ? "text-orange-500"
+              : "text-gold"
+            : "text-zinc-400"
+        }`}
+      >
+        <Info className="w-5 h-5" />
+      </button>
               <div className="relative ml-2">
                 <button
                   onClick={() => setShowMenu(!showMenu)}
@@ -868,7 +833,7 @@ function CharacterChat() {
 
               <div className="p-6 overflow-y-auto custom-scrollbar">
                 {/* Theme Categories */}
-                {(["anime", "movie", "nature", "emotion"] as const).map(
+                {(["anime", "movie", "nature", "emotion","custom"] as const).map(
                   (category) => (
                     <div key={category} className="mb-8">
                       <h3 className="text-lg font-semibold text-gold mb-4 capitalize">
@@ -876,30 +841,50 @@ function CharacterChat() {
                       </h3>
                       <div className="grid grid-cols-3 gap-4">
                         {Object.values(themes)
-                          .filter((theme) => theme.category === category)
-                          .map((theme) => (
-                            <button
-                              key={theme.id}
-                              onClick={() => applyTheme(theme.id)}
-                              className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                                activeTheme === theme.id
-                                  ? "border-gold bg-zinc-700/50"
-                                  : "border-zinc-700 hover:border-zinc-600 bg-zinc-800/50"
-                              }`}
-                              style={{
-                                background:
-                                  theme.gradients?.surface ||
-                                  theme.colors.surface,
-                                borderColor: theme.colors.primary,
-                              }}>
-                              <h4 className="text-white font-medium mb-1">
-                                {theme.name}
-                              </h4>
-                              <p className="text-sm text-zinc-400">
-                                {theme.description}
-                              </p>
-                            </button>
-                          ))}
+    .filter((theme) => theme.category === category)
+  .map((theme) =>
+    theme.id === "custom-background" ? (
+      <label
+        key={theme.id}
+        className="relative p-4 rounded-lg border-2 bg-zinc-800/50 border-zinc-700 flex flex-col items-start cursor-pointer hover:border-gold transition"
+        style={{ minHeight: 120 }}
+      >
+        <h4 className="text-white font-medium mb-1">{theme.name}</h4>
+        <p className="text-sm text-zinc-400 mb-2">{theme.description}</p>
+        <span className="bg-gold/80 px-2 py-1 rounded text-xs text-black font-semibold hover:bg-gold transition mt-2">
+          Upload Image
+        </span>
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleCustomBackgroundUpload}
+        />
+      </label>
+      ) : (
+        <button
+          key={theme.id}
+          onClick={() => applyTheme(theme.id)}
+          className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+            activeTheme === theme.id
+              ? "border-gold bg-zinc-700/50"
+              : "border-zinc-700 hover:border-zinc-600 bg-zinc-800/50"
+          }`}
+          style={{
+            background:
+              theme.gradients?.surface ||
+              theme.colors.surface,
+            borderColor: theme.colors.primary,
+          }}>
+          <h4 className="text-white font-medium mb-1">
+            {theme.name}
+          </h4>
+          <p className="text-sm text-zinc-400">
+            {theme.description}
+          </p>
+        </button>
+      )
+    )}
                       </div>
                     </div>
                   )
@@ -912,19 +897,21 @@ function CharacterChat() {
         {/* Messages */}
         <div
           className="flex-1 overflow-y-auto pt-20 pb-40 relative"
-          ref={messagesEndRef}>
+          >
           {/* Static Background Image */}
-          <div
-            className="fixed inset-0 z-0"
-            style={{
-              backgroundImage: `url(${character.image})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              backgroundAttachment: "fixed",
-              opacity: 0.15, // Reduced opacity for better readability
-            }}
-          />
+      <div
+        className="fixed inset-0 z-0"
+        style={{
+          backgroundImage: themes[activeTheme]?.backgroundImage
+            ? `url(${themes[activeTheme].backgroundImage})`
+            : `url(${character.image})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundAttachment: "fixed",
+          opacity: 0.15, // Reduced opacity for better readability
+        }}
+      />
 
           {/* Content Container */}
           <div className="relative z-10 max-w-3xl mx-auto px-6 space-y-6 pb-6">
@@ -952,35 +939,47 @@ function CharacterChat() {
             {messages.map((msg, index) => (
               <div
                 key={`msg-${index}`}
-                className={`message-bubble ${
-                  msg.sender
-                } animate-fade-in text-base relative ${
-                  msg.sender === "user" ? "ml-auto" : "mr-auto"
-                }`}
-                style={{
-                  maxWidth: "80%",
-                  background:
-                    msg.sender === "user"
-                      ? themes[activeTheme]?.colors.primary || "#6366F1"
-                      : themes[activeTheme]?.colors.surface || "#27272a",
-                }}>
-                <p>{msg.text}</p>
-                <div
-                  className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 rotate-45 ${
-                    msg.sender === "user"
-                      ? "right-0 translate-x-2"
-                      : "left-0 -translate-x-2"
-                  }`}
-                  style={{
-                    background:
-                      msg.sender === "user"
-                        ? themes[activeTheme]?.colors.primary || "#6366F1"
-                        : themes[activeTheme]?.colors.surface || "#27272a",
-                  }}
-                />
-              </div>
-            ))}
-
+                 className={`relative max-w-[80%] px-4 py-3 mb-3 ${
+      msg.sender === "user"
+        ? "ml-auto bg-gradient-to-br from-nexus-blue-500/50 to-nexus-blue-700/50"
+        : "mr-auto bg-zinc-700/50"
+    }`}
+             style={{
+      borderRadius:
+        msg.sender === "user"
+          ? "18px 18px 4px 18px" // Instagram-like for user
+          : "18px 18px 18px 4px", // Instagram-like for AI
+      opacity: 0.5,
+      backdropFilter: "blur(4px)",
+      WebkitBackdropFilter: "blur(4px)",
+      color:
+        msg.sender === "user"
+          ? "#fff"
+          : themes[activeTheme]?.colors.text || "#f8f8f8",
+      background:
+        msg.sender === "user"
+          ? "linear-gradient(135deg, #4f8cff80 0%, #3358ff80 100%)"
+          : "rgba(39, 39, 42, 0.5)",
+    }}
+  >
+    <p className="relative z-10">{msg.text}</p>
+    {/* Bubble tail */}
+    <span
+      className={`absolute w-4 h-4 bg-inherit z-0 ${
+        msg.sender === "user"
+          ? "right-0 -bottom-2 rotate-45"
+          : "left-0 -bottom-2 rotate-45"
+      }`}
+      style={{
+        borderRadius: "0 0 6px 0",
+        background:
+          msg.sender === "user"
+            ? "linear-gradient(135deg, #4f8cff80 0%, #3358ff80 100%)"
+            : "rgba(39, 39, 42, 0.5)",
+      }}
+    />
+  </div>
+))}   
             {/* Loading Indicator */}
             {isLoading && (
               <div className="flex items-center space-x-2 text-zinc-400 animate-pulse mt-6">
@@ -997,7 +996,7 @@ function CharacterChat() {
 
         {/* Chat Input */}
         <div
-          className="fixed bottom-0 right-0 backdrop-blur-lg transition-all duration-300"
+          className="fixed bottom-0 right-0 backdrop-blur-lg transition-all duration-300 z-50"
           style={{
             left: showInfo ? "320px" : "0",
             background: `${

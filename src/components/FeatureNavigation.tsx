@@ -3,7 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Bot, Eye, EyeOff, Layers, MessageSquare, Video } from 'lucide-react';
 import { useState } from 'react';
 import { useCompanion } from '../contexts/CompanionContext';
-import { useEffect } from 'react';
+import { useSettings } from "../contexts/SettingsContext";
+
 
 // Features list
 const features = [
@@ -33,6 +34,8 @@ export function FeatureNavigation() {
   const [isVisible, setIsVisible] = useState(true);
   const [opacity, setOpacity] = useState(1);
   const { selectedCompanion } = useCompanion();
+    const { incognitoMode } = useSettings(); // <-- ADD THIS LINE HERE
+
 
 
 useEffect(() => {
@@ -80,18 +83,14 @@ useEffect(() => {
             return (
               <button
                 key={feature.route}
-                onClick={() => {
-                  if (feature.name === "Connect") {
-                    // Replace with your ngrok or localhost  URL
-                    window.location.href = "http://localhost:3000";
-                  } else {
-                    navigate(feature.route);
-                  }
-                }}
-                className={`group relative px-4 py-2 rounded-xl transition-all duration-200 ${isActive
-                  ? 'bg-gold text-zinc-900'
-                  : 'text-zinc-400 hover:bg-zinc-700/50'
-                  }`}
+                onClick={() => navigate(feature.route)}
+                className={`group relative px-4 py-2 rounded-xl transition-all duration-200 ${
+                  isActive
+              ? incognitoMode
+                ? 'bg-orange-500 text-white hover:bg-orange-400/90'
+                : 'bg-gold text-zinc-900 hover:bg-gold/90'
+              : 'text-zinc-400 hover:bg-zinc-700/50'
+          }`}
               >
                 <div className="flex items-center space-x-2">
                   <feature.icon className="w-5 h-5" />

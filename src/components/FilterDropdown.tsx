@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Filter, X } from 'lucide-react';
+import { Filter, X, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface FilterDropdownProps {
   filters: string[];
@@ -12,12 +12,16 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
   selectedFilters,
   onFilterChange,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -26,40 +30,52 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const toggleFilter = (filter: string) => {
-    const newFilters = selectedFilters.includes(filter)
-      ? selectedFilters.filter(f => f !== filter)
-      : [...selectedFilters, filter];
-    onFilterChange(newFilters);
+  const handleToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsOpen((prev) => !prev);
   };
 
-  const clearAllFilters = () => {
+  const toggleFilter = (filter: string) => {
+    const updated = selectedFilters.includes(filter)
+      ? selectedFilters.filter((f) => f !== filter)
+      : [...selectedFilters, filter];
+    onFilterChange(updated);
+  };
+
+  const clearAll = (e: React.MouseEvent) => {
+    e.stopPropagation();
     onFilterChange([]);
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative inline-block" ref={dropdownRef}>
+      {/* Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggle}
         className="flex items-center space-x-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition-colors"
       >
         <Filter className="w-4 h-4" />
         <span>Filters</span>
+        {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         {selectedFilters.length > 0 && (
-          <span className="bg-gold text-zinc-900 text-xs px-2 py-0.5 rounded-full">
+          <span className="bg-gold text-zinc-900 text-xs px-2 py-0.5 rounded-full ml-2">
             {selectedFilters.length}
           </span>
         )}
       </button>
 
+      {/* Dropdown Panel (Rendered only when open) */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-64 bg-zinc-800 rounded-lg shadow-lg border border-zinc-700 z-50">
+        <div
+          className="absolute top-full left-0 mt-2 w-64 bg-zinc-800 rounded-lg shadow-lg border border-zinc-700 z-50 transition-all duration-200"
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="p-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-medium">Filters</h3>
               {selectedFilters.length > 0 && (
                 <button
-                  onClick={clearAllFilters}
+                  onClick={clearAll}
                   className="text-sm text-zinc-400 hover:text-white"
                 >
                   Clear all
@@ -67,7 +83,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
               {filters.map((filter) => (
                 <label
                   key={filter}
@@ -95,7 +111,10 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
                   >
                     <span>{filter}</span>
                     <button
-                      onClick={() => toggleFilter(filter)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFilter(filter);
+                      }}
                       className="hover:text-zinc-300"
                     >
                       <X className="w-3 h-3" />
@@ -109,4 +128,4 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
       )}
     </div>
   );
-}; 
+};
