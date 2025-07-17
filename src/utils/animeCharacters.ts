@@ -3733,7 +3733,7 @@ export const animeCharacters: Record<string, AnimeCharacter> = {
     id: 194,
     name: 'Study Buddy',
     role: 'Learning Companion',
-    image: 'https://images.unsplash.com/photo-1629196723810-6c8e493d3ff9?q=80&w=1887&auto=format&fit=crop',
+    image: 'https://imgs.search.brave.com/VLLpO2COtTa7jQAYekzwWAzJFXgAEEt9Fn5YhgnSGEE/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90aHVt/YnMuZHJlYW1zdGlt/ZS5jb20vYi93aG8t/d2FudHMtdG8tYmUt/bXktc3R1ZHktYnVk/ZHktcG9ydHJhaXQt/aGFwcHkteW91bmct/d29tYW4tY2Fycnlp/bmctYm9va3MtbGli/cmFyeS1jb2xsZWdl/LXdoby13YW50cy10/by1iZS1teS1zdHVk/eS0yNjczODk4NDAu/anBn',
     description: 'A friendly student partner who helps you stay focused, understand difficult concepts, and prepare for exams',
     tags: ['Helper', 'Education', 'Student', 'Female'],
     languages: {
@@ -4085,7 +4085,7 @@ export const animeCharacters: Record<string, AnimeCharacter> = {
     id: 211,
     name: 'Technical Writer',
     role: 'Documentation Specialist',
-    image: 'https://images.unsplash.com/photo-1602738328654-51ab2ae6c31f?q=80&w=1974&auto=format&fit=crop',
+    image: 'https://imgs.search.brave.com/ttw6llAW7oEPoTZOtydoIbyqzSMCTE8cjupS3PwHAxo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jbXMu/YXN1b25saW5lLmFz/dS5lZHUvc2l0ZXMv/Zy9maWxlcy9saXR2/cHoxOTcxL2ZpbGVz/LzIwMjMtMDcvSG93/JTIwdG8lMjBiZWNv/bWUlMjBhJTIwdGVj/aG5pY2FsJTIwd3Jp/dGVyXzAuanBn',
     description: 'A skilled writer who transforms complex technical information into clear, usable documentation',
     tags: ['Helper', 'Technical', 'Writing', 'Female'],
     languages: {
@@ -4129,7 +4129,7 @@ export const animeCharacters: Record<string, AnimeCharacter> = {
     id: 213,
     name: 'Chemistry Lab Assistant',
     role: 'Chemical Science Guide',
-    image: 'https://images.unsplash.com/photo-1562411052-0d8689fe461a?q=80&w=1973&auto=format&fit=crop',
+    image: 'https://imgs.search.brave.com/_jUXAvzFY8mXUu3n-C4-ypMEs2Lcv1ZLeSSLb4Ood7c/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzAxLzM1LzY0LzM0/LzM2MF9GXzEzNTY0/MzQ5N19JdElnbUoy/d1JmVFNRMGhDRFY5/TXlJMDFCYmU2OUFE/SS5qcGc',
     description: 'A knowledgeable chemistry expert who helps with experiments, concepts, and laboratory procedures',
     tags: ['Helper', 'Chemistry', 'Science', 'Female'],
     languages: {
@@ -4173,7 +4173,7 @@ export const animeCharacters: Record<string, AnimeCharacter> = {
     id: 215,
     name: 'AI Ethics Expert',
     role: 'Responsible AI Consultant',
-    image: 'https://images.unsplash.com/photo-1655720837654-a15d50a780ed?q=80&w=1932&auto=format&fit=crop',
+    image: 'https://imgs.search.brave.com/e-hX10wcfNn5urNPBe4PgyfGRxk6siFN0mgpbl09wSw/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9saXZl/LW9wZXJhdGlvbmhv/cGUtMzUyLnBhbnRo/ZW9uc2l0ZS5pby93/cC1jb250ZW50L3Vw/bG9hZHMvMjAyNC8w/Ni9BSS11c2FiaWxp/dHkuanBn',
     description: 'A thoughtful specialist in artificial intelligence ethics who navigates the complex social implications of AI systems',
     tags: ['Helper', 'AI', 'Ethics', 'Non-Binary'],
     languages: {
@@ -4217,7 +4217,7 @@ export const animeCharacters: Record<string, AnimeCharacter> = {
     id: 217,
     name: 'Debate Coach',
     role: 'Argumentation Specialist',
-    image: 'https://images.unsplash.com/photo-1551845241-0d3e975d1a28?q=80&w=2070&auto=format&fit=crop',
+    image: 'https://imgs.search.brave.com/oeCn470wCQ97ox4BVBd1suuQ0mxZV6XPj-l6Rb9bNPg/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/aGFya2VyLm9yZy91/cGxvYWRlZC90aGVt/ZXMvY29ycG9yYXRl/LTIwMTUvaW1nLzIw/MTktMDRfVVNfU3Bl/ZWNoLU1LLTIwLmpw/Zw',
     description: 'A skilled debate instructor who teaches logical reasoning, persuasive speaking, and effective argumentation',
     tags: ['Helper', 'Debate', 'Logic', 'Male'],
     languages: {

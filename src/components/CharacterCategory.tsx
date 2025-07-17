@@ -141,7 +141,7 @@ export default function CharacterCategory({
                   className={`absolute top-2 right-2 z-20 p-1.5 rounded-full backdrop-blur-sm transition-all duration-200 ${
                     favorites.includes(slug)
                       ? 'bg-nexus-purple-500 text-white'
-                      : 'bg-nexus-neutral-800/70 text-nexus-neutral-300 hover:bg-nexus-neutral-700/70'
+                      : 'bg-nexus-neutral-800/70 text-nexus-neutral-30  hover:bg-nexus-neutral-300/30'
                   }`}
                 >
                   <Star className="w-3 h-3" fill={favorites.includes(slug) ? "currentColor" : "none"} />
@@ -166,7 +166,7 @@ export default function CharacterCategory({
                   {/* Chat button */}
                   <button 
                     onClick={() => navigate(`/chat/${slug}`)}
-                    className={`w-full flex items-center justify-center space-x-1 px-2 py-1.5 ${colorScheme.button} text-white rounded-lg transition-all duration-200 text-xs font-medium hover:opacity-90`}
+                    className={`w-full flex items-center justify-center space-x-1 px-2 py-1.5 ${colorScheme.button} text-white rounded-lg transition-all duration-200 text-xs font-medium hover:opacity-80`}
                   >
                     <span>Chat Now</span>
                     <ArrowRight className="w-2.5 h-2.5" />
